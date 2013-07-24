@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--*****************************COPYRIGHT***********************************
  * This file is part of the Emergency Data Collector for Android™ (EDCA).	*
  * Copyright © 2013 Mattias Spångmyr.										*
@@ -32,7 +33,6 @@
  * For other enquiries, e-mail to: edca.contact@gmail.com					*
  * 																			*
  **************************************************************************-->
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layerviewer_layerlist_topLayout"
     android:layout_width="fill_parent"

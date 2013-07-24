@@ -10,7 +10,7 @@
  *	> Go to GitHub (github.com/mattiassp/edca) and download the latest	*
  *	  release.								*
  *	> The source is released under the GPL (v3 or newer); see LICENSE.txt	*
- *	  about how you are allowed to use the code.
+ *	  about how you are allowed to use the code.				*
  *										*
  * <> Use the application?							*
  *	> See the EDCA_User_Guide.pdf document that should be distributed along *
@@ -19,6 +19,10 @@
  * <> Contribute?								*
  *	> Get an account on GitHub.com, download the EDCA repository, edit it,	*
  *	  push your changes back and make a pull request.			*
+ *	> By contributing with changes or additions to the EDCA repository, you *
+ *	  acknowledge that your contributions will carry the same license as	*
+ *	  the original EDCA, and can be used, reproduced, modified or		*
+ *	  distributed accordingly.						*
  * 										*
  * <> Contact the author?							*
  *	> E-mail to: edca.contact@gmail.com					*
