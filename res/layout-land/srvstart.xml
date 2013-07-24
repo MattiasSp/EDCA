@@ -1,0 +1,180 @@
+<!--*****************************COPYRIGHT***********************************
+ * This file is part of the Emergency Data Collector for Android™ (EDCA).	*
+ * Copyright © 2013 Mattias Spångmyr.										*
+ * 																			*
+ *********************************LICENSE************************************
+ * EDCA is free software: you can redistribute it and/or modify it under	*
+ * the terms of the GNU General Public License as published by the Free		*
+ * Software Foundation, either version 3 of the License, or (at your		*
+ * option) any later version.												*
+ *																			*
+ * EDCA is distributed in the hope that it will be useful, but WITHOUT ANY	*
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or		*
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License	*
+ * for more details.														*
+ *																			*
+ * You should have received a copy of the GNU General Public License along	*
+ * with EDCA. If not, see "http://www.gnu.org/licenses/".					*
+ * 																			*
+ * The latest source for this software can be accessed at					*
+ * "github.org/mattiassp/edca".												*
+ * 																			*
+ * EDCA also utilizes the JTS Topology Suite, Version 1.8 by Vivid			*
+ * Solutions Inc. It is released under the Lesser General Public License	*
+ * ("http://www.gnu.org/licenses/") and its source can be accessed at the	*
+ * JTS Topology Suite website ("http://www.vividsolutions.com/jts").		*
+ * 																			*
+ * Android™ is a trademark of Google Inc. The Android source is released	*
+ * under the Apache License 2.0												*
+ * ("http://www.apache.org/licenses/LICENSE-2.0") and can be accessed at	*
+ * "http://source.android.com/".											*
+ * 																			*
+ * For other enquiries, e-mail to: edca.contact@gmail.com					*
+ * 																			*
+ **************************************************************************-->
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:id="@+id/srvstart_RelativeLayout_Super"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent">
+    	
+    <ImageView
+        android:id="@+id/srvstart_webconnection"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/webconnection"
+        android:contentDescription="@string/app_webconnection" />
+
+    	<TableLayout
+        	android:id="@+id/srvstart_tableLayoutTop"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_alignParentLeft="true"
+        	android:layout_alignParentTop="true"
+        	android:layout_marginLeft="10dp"
+        	android:layout_marginRight="10dp"
+        	android:layout_marginTop="10dp"
+        	android:stretchColumns="1" >
+
+        	<TableRow
+            	android:id="@+id/srvstart_tableLayoutTop_Row1"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content" >
+            	
+            	<TextView
+            	    android:id="@+id/srvstart_textView_activesrv"
+            	    android:layout_width="wrap_content"
+            	    android:layout_height="wrap_content"
+            	    android:layout_span="2"
+            	    android:text="@string/srvstart_content_head_activesrv"
+            	    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            	<TextView
+            	    android:id="@+id/srvstart_content_activesrv"
+            	    android:layout_width="wrap_content"
+            	    android:layout_height="wrap_content"
+            	    android:text="@string/srvstart_content_noactivesrv"
+            	    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        	</TableRow>
+
+        	<TableRow
+            	android:id="@+id/srvstart_tableLayoutTop_Row2"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content" >
+
+            	<View
+                	android:layout_width="fill_parent"
+                	android:layout_height="2dp"
+                	android:layout_span="3"
+                	android:background="#FF909090" />
+        	</TableRow>
+
+    	</TableLayout>
+    	
+    	<RelativeLayout
+        	android:id="@+id/srvstart_relativeLayout_Sub1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_below="@id/srvstart_tableLayoutTop"
+        	android:layout_centerHorizontal="true"
+        	android:layout_marginLeft="10dp"
+        	android:layout_marginRight="10dp"
+        	android:layout_marginTop="10dp" >
+        	
+        	<Button
+            	android:id="@+id/srvstart_button_renew"
+            	android:layout_width="200dp"
+            	android:layout_height="wrap_content"
+            	android:layout_centerVertical="true"
+            	android:layout_marginTop="10dp"
+            	android:text="@string/srvstart_button_renew"
+            	android:onClick="onClickRenew" />
+        	
+        	<Button
+            	android:id="@+id/srvstart_button_newsrv"
+            	android:layout_width="200dp"
+            	android:layout_height="wrap_content"
+            	android:layout_toRightOf="@id/srvstart_button_renew"
+            	android:layout_marginTop="10dp"
+            	android:layout_marginLeft="10dp"
+            	android:layout_centerVertical="true"
+            	android:text="@string/srvstart_button_newsrv"
+            	android:onClick="onClickNewServer" />
+
+    	</RelativeLayout>
+    	
+    	<RelativeLayout
+        	android:id="@+id/srvstart_relativeLayout_Sub2"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_below="@id/srvstart_relativeLayout_Sub1"
+        	android:layout_marginTop="5dp"
+        	android:layout_marginBottom="10dp"
+        	android:layout_marginLeft="10dp"
+        	android:layout_marginRight="10dp" >
+
+            	<TextView
+                	android:id="@+id/srvstart_textView_savedsrv"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="@string/srvstart_content_head_savedsrv"
+                	android:textAppearance="?android:attr/textAppearanceMedium" />
+            	
+            	<View
+            	    android:id="@+id/srvstart_savedSrvUnderline"
+            	    android:layout_width="fill_parent"
+            	    android:layout_height="2dp"
+            	    android:layout_below="@id/srvstart_textView_savedsrv"
+            	    android:background="#FF909090" />
+
+            	<LinearLayout
+                	android:layout_width="fill_parent"
+                	android:layout_height="wrap_content"
+                	android:layout_below="@id/srvstart_savedSrvUnderline" >
+            	
+            	<ListView
+                    	android:id="@+id/android:list"
+                    	android:layout_width="fill_parent"
+                    	android:layout_height="wrap_content"
+                    	android:layout_weight="1"
+                    	android:dividerHeight="0dp" >
+
+                	</ListView>
+
+                	<TextView
+                    	android:id="@+id/android:empty"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_weight="1"
+                    	android:text="@string/srvstart_content_no_srvs"
+                    	android:textAppearance="?android:attr/textAppearanceSmall" />
+            	</LinearLayout>
+    	</RelativeLayout>    
+
+</RelativeLayout>

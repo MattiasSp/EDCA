@@ -1,0 +1,254 @@
+<!--*****************************COPYRIGHT***********************************
+ * This file is part of the Emergency Data Collector for Android™ (EDCA).	*
+ * Copyright © 2013 Mattias Spångmyr.										*
+ * 																			*
+ *********************************LICENSE************************************
+ * EDCA is free software: you can redistribute it and/or modify it under	*
+ * the terms of the GNU General Public License as published by the Free		*
+ * Software Foundation, either version 3 of the License, or (at your		*
+ * option) any later version.												*
+ *																			*
+ * EDCA is distributed in the hope that it will be useful, but WITHOUT ANY	*
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or		*
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License	*
+ * for more details.														*
+ *																			*
+ * You should have received a copy of the GNU General Public License along	*
+ * with EDCA. If not, see "http://www.gnu.org/licenses/".					*
+ * 																			*
+ * The latest source for this software can be accessed at					*
+ * "github.org/mattiassp/edca".												*
+ * 																			*
+ * EDCA also utilizes the JTS Topology Suite, Version 1.8 by Vivid			*
+ * Solutions Inc. It is released under the Lesser General Public License	*
+ * ("http://www.gnu.org/licenses/") and its source can be accessed at the	*
+ * JTS Topology Suite website ("http://www.vividsolutions.com/jts").		*
+ * 																			*
+ * Android™ is a trademark of Google Inc. The Android source is released	*
+ * under the Apache License 2.0												*
+ * ("http://www.apache.org/licenses/LICENSE-2.0") and can be accessed at	*
+ * "http://source.android.com/".											*
+ * 																			*
+ * For other enquiries, e-mail to: edca.contact@gmail.com					*
+ * 																			*
+ **************************************************************************-->
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/srvedit_relativelayout_root"
+	android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    
+    <ImageView
+        	android:id="@+id/srvedit_webconnection"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:background="@drawable/webconnection"
+        	android:layout_marginBottom="5dp"
+        	android:layout_marginRight="5dp"
+        	android:layout_alignParentBottom="true"
+        	android:layout_alignParentRight="true"
+        	android:contentDescription="@string/app_webconnection" />
+    
+	<ScrollView
+    	android:id="@+id/srvedit_scrollview"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:padding="10dp">
+
+		<RelativeLayout
+        	android:id="@+id/srvedit_relativelayout_top"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content">
+        
+        	<TextView
+            	android:id="@+id/srvedit_textview_title"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"            
+            	android:text="@string/srvedit_title_edit"
+            	android:textAppearance="?android:attr/textAppearanceLarge" />
+        
+        	<TableLayout
+            	android:id="@+id/srvedit_table_inputform"
+            	android:layout_width="fill_parent"
+            	android:layout_height="wrap_content"
+            	android:layout_below="@id/srvedit_textview_title"
+            	android:stretchColumns="0">
+            
+            	<TableRow
+                	android:id="@+id/tableRow1"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+
+                	<TextView
+                    	android:id="@+id/textView2"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:text="@string/srvedit_content_head_name"
+                    	android:textAppearance="?android:attr/textAppearanceMedium" />
+            	</TableRow>
+            
+            	<TableRow
+                	android:id="@+id/tableRow2"
+                	android:layout_width="wrap_content"
+					android:layout_height="wrap_content" >
+
+                	<EditText
+                    	android:id="@+id/srvedit_edittext_name"
+                    	android:layout_width="fill_parent"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:ems="10"
+                    	android:hint="@string/srvedit_edittext_hint_name" />
+            	</TableRow>
+            
+            	<TableRow
+                	android:id="@+id/tableRow3"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content">
+
+					<TextView
+                    	android:id="@+id/textView3"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:text="@string/srvedit_content_head_ip"
+                    	android:textAppearance="?android:attr/textAppearanceMedium" />
+					<TextView
+                    	android:id="@+id/textView4"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:text="@string/srvedit_content_head_port"
+                    	android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            	</TableRow>
+            
+            	<TableRow
+	                android:id="@+id/tableRow4"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+				
+					<EditText
+                    	android:id="@+id/srvedit_edittext_ip"
+                    	android:layout_width="150dp"
+                    	android:layout_height="wrap_content"
+                    	android:hint="@string/srvedit_edittext_hint_ip" />
+				
+					<EditText
+                    	android:id="@+id/srvedit_edittext_port"
+                    	android:layout_width="100dp"
+                    	android:layout_height="wrap_content"
+                    	android:hint="@string/srvedit_edittext_hint_port" />
+            
+            	</TableRow>
+
+            	<TableRow
+                	android:id="@+id/tableRow5"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+				
+					<TextView
+                    	android:id="@+id/textView6"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:text="@string/srvedit_content_head_path"
+                    	android:textAppearance="?android:attr/textAppearanceMedium" />
+            
+            	</TableRow>
+            
+            	<TableRow
+                	android:id="@+id/tableRow6"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+				
+					<EditText
+                    	android:id="@+id/srvedit_edittext_path"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:hint="@string/srvedit_edittext_hint_path" />
+            
+            	</TableRow>
+            
+            	<TableRow
+                	android:id="@+id/tableRow7"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+				
+					<TextView
+                    	android:id="@+id/TextView01"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:text="@string/srvedit_content_head_workspace"
+                    	android:textAppearance="?android:attr/textAppearanceMedium" />
+            
+            	</TableRow>
+            
+            	<TableRow
+                	android:id="@+id/tableRow8"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+				
+                	<EditText
+                    	android:id="@+id/srvedit_edittext_workspace"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:hint="@string/srvedit_edittext_hint_workspace" />
+
+            	</TableRow>
+
+        	</TableLayout>
+
+			<LinearLayout
+		    	android:id="@+id/srvedit_linearLayout_lastused"
+            	android:layout_width="fill_parent"
+            	android:layout_height="wrap_content"
+            	android:layout_marginTop="10dp"
+            	android:layout_below="@id/srvedit_table_inputform" >
+            
+            	<TextView
+                	android:id="@+id/srvedit_textView_lastused_head"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="@string/srvedit_content_head_lastused"
+                	android:textAppearance="?android:attr/textAppearanceMedium" />
+            
+            	<TextView
+                	android:id="@+id/srvedit_textview_lastused_content"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="@string/srvedit_content_nolastuse"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+
+			</LinearLayout>
+			<RelativeLayout
+	    		android:id="@+id/srvedit_relativelayout_buttons"
+        		android:layout_width="fill_parent"
+        		android:layout_height="wrap_content"
+        		android:gravity="center"
+        		android:layout_marginTop="10dp"
+        		android:layout_below="@id/srvedit_linearLayout_lastused" >
+            
+        		<Button
+            		android:id="@+id/srvedit_button_saveedit"
+        			android:layout_width="200dp"
+            		android:layout_height="wrap_content"
+            		android:text="@string/srvedit_button_save"
+            		android:onClick="onClickSaveEdit" />
+            
+				<ToggleButton
+           			android:id="@+id/srvedit_button_connect"
+           			android:layout_width="200dp"
+           			android:layout_height="wrap_content"
+           			android:layout_marginTop="10dp"
+           			android:layout_below="@id/srvedit_button_saveedit"
+           			android:onClick="onClickConnect"
+           			android:textOff="@string/srvedit_button_notconnected"
+           			android:textOn="@string/srvedit_button_connected" />
+		
+			</RelativeLayout>
+		</RelativeLayout>
+	</ScrollView>
+</RelativeLayout>

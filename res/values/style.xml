@@ -1,0 +1,49 @@
+<!--*****************************COPYRIGHT***********************************
+ * This file is part of the Emergency Data Collector for Android™ (EDCA).	*
+ * Copyright © 2013 Mattias Spångmyr.										*
+ * 																			*
+ *********************************LICENSE************************************
+ * EDCA is free software: you can redistribute it and/or modify it under	*
+ * the terms of the GNU General Public License as published by the Free		*
+ * Software Foundation, either version 3 of the License, or (at your		*
+ * option) any later version.												*
+ *																			*
+ * EDCA is distributed in the hope that it will be useful, but WITHOUT ANY	*
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or		*
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License	*
+ * for more details.														*
+ *																			*
+ * You should have received a copy of the GNU General Public License along	*
+ * with EDCA. If not, see "http://www.gnu.org/licenses/".					*
+ * 																			*
+ * The latest source for this software can be accessed at					*
+ * "github.org/mattiassp/edca".												*
+ * 																			*
+ * EDCA also utilizes the JTS Topology Suite, Version 1.8 by Vivid			*
+ * Solutions Inc. It is released under the Lesser General Public License	*
+ * ("http://www.gnu.org/licenses/") and its source can be accessed at the	*
+ * JTS Topology Suite website ("http://www.vividsolutions.com/jts").		*
+ * 																			*
+ * Android™ is a trademark of Google Inc. The Android source is released	*
+ * under the Apache License 2.0												*
+ * ("http://www.apache.org/licenses/LICENSE-2.0") and can be accessed at	*
+ * "http://source.android.com/".											*
+ * 																			*
+ * For other enquiries, e-mail to: edca.contact@gmail.com					*
+ * 																			*
+ **************************************************************************-->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="edcatheme" parent="@android:style/Theme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <style name="themetransparent" parent="@android:style/Theme.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+    	<item name="android:windowBackground">@color/transparent</item>
+    	<item name="android:windowContentOverlay">@null</item>
+    	<item name="android:windowNoTitle">true</item>
+    	<item name="android:windowIsFloating">true</item>
+    	<item name="android:backgroundDimEnabled">false</item>
+    </style>    
+</resources>

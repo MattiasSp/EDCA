@@ -1,0 +1,171 @@
+<!--*****************************COPYRIGHT***********************************
+ * This file is part of the Emergency Data Collector for Android™ (EDCA).	*
+ * Copyright © 2013 Mattias Spångmyr.										*
+ * 																			*
+ *********************************LICENSE************************************
+ * EDCA is free software: you can redistribute it and/or modify it under	*
+ * the terms of the GNU General Public License as published by the Free		*
+ * Software Foundation, either version 3 of the License, or (at your		*
+ * option) any later version.												*
+ *																			*
+ * EDCA is distributed in the hope that it will be useful, but WITHOUT ANY	*
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or		*
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License	*
+ * for more details.														*
+ *																			*
+ * You should have received a copy of the GNU General Public License along	*
+ * with EDCA. If not, see "http://www.gnu.org/licenses/".					*
+ * 																			*
+ * The latest source for this software can be accessed at					*
+ * "github.org/mattiassp/edca".												*
+ * 																			*
+ * EDCA also utilizes the JTS Topology Suite, Version 1.8 by Vivid			*
+ * Solutions Inc. It is released under the Lesser General Public License	*
+ * ("http://www.gnu.org/licenses/") and its source can be accessed at the	*
+ * JTS Topology Suite website ("http://www.vividsolutions.com/jts").		*
+ * 																			*
+ * Android™ is a trademark of Google Inc. The Android source is released	*
+ * under the Apache License 2.0												*
+ * ("http://www.apache.org/licenses/LICENSE-2.0") and can be accessed at	*
+ * "http://source.android.com/".											*
+ * 																			*
+ * For other enquiries, e-mail to: edca.contact@gmail.com					*
+ * 																			*
+ **************************************************************************-->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Emergency Data Collector for Android&#8482;</string>
+    <string name="app_name_short">EDCA</string>
+    <string name="app_author">Mattias Spångmyr</string>
+    <string name="app_versiondate">2013–07–24</string>
+    <string name="app_contact">edca.contact@gmail.com</string>
+    <string name="app_empty">&#8211;</string>
+    <string name="app_webconnection">Indicates if the application is accessing or processing web content.</string>
+    <string name="app_gplaysvc_notavailable">Google Play services not available. Exiting application&#8230;</string>
+    <string name="app_gplaysvc_required">Google Play services is a required component of this application.</string>
+    <string name="menu_button_map">View Map</string>
+    <string name="menu_button_layer">Manage Layers</string>
+    <string name="menu_button_srv">Manage Server Connections</string>
+    <string name="menu_button_about">About&#8230;</string>
+    <string name="menu_button_exit">Exit EDCA</string>
+    <string name="menu_loseunsavedalert_title">Upload/Store Your Data!</string>
+    <string name="menu_loseunsavedalert_msg">Before exiting, the current layer\'s data should be uploaded to the server or stored locally. Any unsaved data may be lost.</string>
+    <string name="menu_loseunsavedalert_confirm">Exit</string>
+    <string name="menu_loseunsavedalert_cancel">Return</string>
+    <string name="about_title_about">About EDCA</string>
+    <string name="about_content_head_version">"Current Version: "</string>
+    <string name="about_content_head_date">"Last updated: "</string>
+    <string name="about_content_head_author">Author: </string>
+    <string name="about_content_head_contact">"Contact: "</string>
+    <string name="about_content_license">Emergency Data Collector for Android&#8482; (EDCA)\n&#9426; 2013 Mattias Spångmyr\n\nEDCA is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nEDCA is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/">GNU General Public License</a> for more details.\n\nThe source code for this software can be accessed at <a href="github.com/mattiassp/edca">EDCA\'s GitHub</a> page.\n\nEDCA also utilizes the JTS Topology Suite, Version 1.8, by Vivid Solutions Inc. It is released under the <a href="http://www.gnu.org/copyleft/lesser.html">GNU Lesser General Public License</a> and its source can be accessed at the <a href="http://www.vividsolutions.com/jts">JTS Topology Suite website</a>.\n\nAndroid&#8482; is a trademark of Google Inc. The Android source is released under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a> and can be accessed at <a href="http://source.android.com/">source.android.com</a>.</string>
+    <string name="about_content_head_gplaysvc">"Google Play Services license: "</string>
+    <string name="about_content_value_gplaysvc">(click to expand)</string>
+    <string name="about_content_gplaysvc_none">Google Play services is not installed on this device.</string>
+    <string name="srvstart_content_head_activesrv">Active Server Connection: </string>
+    <string name="srvstart_content_noactivesrv">Not connected to a server.</string>
+    <string name="srvstart_content_head_savedsrv">&quot;Stored Server Connections: &quot;</string>
+    <string name="srvstart_content_no_srvs">No stored servers.</string>
+    <string name="srvstart_button_renew">"Renew Last Connection\n(Reloads non-stored layers!)"</string>
+    <string name="srvstart_button_newsrv">Add a New Server Connection</string>
+    <string name="srvstart_contextmenu_edit">Edit</string>
+    <string name="srvstart_contextmenu_delete">Delete</string>
+    <string name="srvedit_title_create">Create New Connection</string>
+    <string name="srvedit_title_edit">Edit Connection</string>
+    <string name="srvedit_content_head_name">Name:</string>
+    <string name="srvedit_content_head_ip">IP Address:</string>
+    <string name="srvedit_content_head_port">Port:</string>
+    <string name="srvedit_content_head_path">Geospatial server path:</string>
+    <string name="srvedit_content_head_workspace">Workspace on the server:</string>
+    <string name="srvedit_content_head_lastused">"Last connected: "</string>
+    <string name="srvedit_content_nolastuse">(Never)</string>
+    <string name="srvedit_button_save">Save</string>
+    <string name="srvedit_button_edit">Edit</string>
+    <string name="srvedit_button_notconnected">Not Connected</string>
+    <string name="srvedit_button_connected">Connected</string>
+    <string name="srvedit_button_connecting">Connecting&#8230;</string>
+    <string name="srvedit_edittext_hint_name">Enter a connection name</string>
+    <string name="srvedit_edittext_hint_ip">###.###.###.###</string>
+    <string name="srvedit_edittext_hint_port">#####</string>
+    <string name="srvedit_edittext_hint_path">&quot;/path/to/server (don't end with /)&quot;</string>
+    <string name="srvedit_edittext_hint_workspace">Workspace name (A–Z, 0–9, –, _)</string>
+    <string name="srvedit_alert_text_needname">You need to provide a server name!</string>
+    <string name="srvedit_alert_text_badip">The entered IP is not valid. Try again!</string>
+    <string name="srvedit_alert_text_badport">The entered port number is not valid. Try again!</string>
+    <string name="srvedit_alert_text_badworkspace">Workspace name cannot contain special characters or spaces!</string>
+    <string name="srvedit_alert_text_badpath">The path must either be empty, or start (but not end) with a slash &quot;/&quot;. No blank spaces allowed.</string>
+    <string name="service_alert_buttontext_ok">OK</string>
+    <string name="service_connectionfailed">"Could not connect."</string>
+    <string name="service_sdunavailable">The external storage (or memory card) is not available.</string>    
+    <string name="service_layerconflict">All layers were not added because stored layers already exist with identical names.</string>
+    <string name="layerviewer_content_head_activelayer">Data Collection</string>
+    <string name="layerviewer_content_noactivelayer">No layer targeted.</string>
+    <string name="layerviewer_content_head_layers">Available Layers</string>
+    <string name="layerviewer_content_nolayers">No remote layers available.</string>
+    <string name="layerviewer_button_upload">Upload/Store Data</string>
+    <string name="layerviewer_button_uploading">Uploading&#8230;</string>
+    <string name="layerviewer_contextmenu_display">Toggle Display</string>
+    <string name="layerviewer_contextmenu_store">Toggle Store on Device</string>
+    <string name="layerviewer_contextmenu_activate">Toggle Target for Data Collection</string>
+    <string name="layerviewer_contextstore_notactive">Can only store the currently active layer.</string>
+    <string name="layerviewer_uploaddialog_confirm">Yes</string>
+    <string name="layerviewer_uploaddialog_decline">No</string>
+    <string name="layerviewer_uploaddialog_title">Upload Failed</string>
+    <string name="layerviewer_uploaddialog_msg">The upload failed. Would you like to store the data locally?</string>
+    <string name="layerviewer_uploadtoast_readsuccess">Layer successfully loaded from local storage.</string>
+    <string name="layerviewer_uploadtoast_readfail">Reading from local storage failed.</string>
+    <string name="layerviewer_uploadtoast_writesuccess">Storing layer locally finished successfully.</string>
+    <string name="layerviewer_uploadtoast_writefail">Storing layer locally failed.</string>
+    <string name="layerviewer_uploadtoast_uploadsuccess">Upload successful.</string>
+    <string name="layerviewer_uploadtoast_nodata">No data to upload.</string>
+    <string name="layerviewer_uploadtoast_noactivelayer">No active layer.</string>
+    <string name="layerviewer_overwritealert_msg">Layer already exists locally. Overwrite its data?</string>
+    <string name="layerviewer_overwritealert_confirm">Overwrite</string>
+    <string name="layerviewer_overwritealert_decline">Keep existing data</string>
+    <string name="layerviewer_overwritealert_title">File Conflict</string>
+    <string name="layerviewer_deletestoreddialog_title">Delete Layer</string>
+    <string name="layerviewer_deletestoreddialog_msg">Remove the layer from the local storage?</string>
+    <string name="layerviewer_deletestoreddialog_confirm">Delete</string>
+    <string name="layerviewer_deletestoreddialog_cancel">Cancel</string>
+    <string name="layerviewer_loseunsavedalert_title">Upload/Store Your Data!</string>
+    <string name="layerviewer_loseunsavedalert_msg">Before deactivating the current layer, its data should be uploaded to the server or stored locally. Any unsaved data will be lost.</string>
+    <string name="layerviewer_loseunsavedalert_confirm">Continue</string>
+    <string name="layerviewer_loseunsavedalert_cancel">Abort</string>
+    <string name="mapviewer_getmapimage">The image response from a GetMap request to a spatial server.</string>
+    <string name="mapviewer_optionsmenu_addposition">Add Position</string>
+    <string name="mapviewer_optionsmenu_manualadd">Enter Coordinates</string>
+    <string name="mapviewer_optionsmenu_selectsequence">Add to Sequence</string>
+    <string name="mapviewer_optionsmenu_combinesequence">Combine Selected Points</string>
+    <string name="mapviewer_optionsmenu_clearselection">Clear Selection</string>
+    <string name="mapviewer_selectsequence_nopoints">No points to add!</string>
+    <string name="mapviewer_addposition_gettinglocation">Locating&#8230; This may take a while.</string>
+    <string name="mapviewer_addposition_stopped">Stopped searching for location.</string>
+    <string name="mapviewer_addposition_locationmsg_acc">Accuracy (m):</string>
+    <string name="mapviewer_addposition_locationmsg_tap">(tap to save)</string>
+    <string name="mapviewer_addpositiondialog_title">Confirm Position</string>
+    <string name="mapviewer_addpositiondialog_question">Save this location?</string>
+    <string name="mapviewer_addpositiondialog_accept">Yes</string>
+    <string name="mapviewer_addpositiondialog_decline">No</string>
+    <string name="mapviewer_combinesequence_invalid">Invalid geometry! Single simple polygons and 2 / 3 points for lines / polygons. GO!</string>
+    <string name="mapviewer_combinesequence_noselected">Not enough points selected for this type of geometry!</string>
+    <string name="mapviewer_attdialog_title">Geometry</string>
+    <string name="mapviewer_attdialog_editbutton">Edit Attributes</string>
+    <string name="mapviewer_attdialog_deletebutton">Delete Geometry</string>
+    <string name="attributeeditor_attform_content_attname">Attribute Name</string>
+    <string name="attributeeditor_attform_content_input">&quot;Input &quot;</string>    
+    <string name="attributeeditor_content_head_addData">Add/Edit Attribute Data</string>
+    <string name="attributeeditor_button_save">Save</string>
+    <string name="attributeeditor_inputalert_semicolon">Invalid input. Attributes cannot contain semi-colons \&quot;;\&quot;.</string>
+    <string name="attributeeditor_button_edit">Edit</string>
+    <string name="attributeeditor_inputalert_null">Field must not be blank:</string>
+    <string name="attributeeditor_attform_latitude_title">Latitude</string>
+    <string name="attributeeditor_attform_longitude_title">Longitude</string>
+    <string name="attributeeditor_attform_longitude_hint">Input decimal longitude</string>
+    <string name="attributeeditor_attform_latitude_hint">Input decimal latitude</string>
+    <string name="attributeeditor_inputalert_lon">Invalid longitude. Must be decimal degrees (using a dot as decimal sign) between 180 and -180.</string>
+    <string name="attributeeditor_inputalert_lat">Invalid latitude. Must be decimal degrees (using a dot as decimal sign) between 90 and -90.</string>
+    <string name="attributeeditor_inputalert_integer">This field can only store integer values:</string>
+    <string name="attributeeditor_inputalert_date">This field has to be a date with the format \&quot;yyyy-MM-dd\&quot;:</string>
+    <string name="attributeeditor_inputalert_datetime">This field has to be a timestamp with the format \&quot;yyyy-MM-dd HH:mm:ss\&quot; :</string>
+    <string name="attributeeditor_inputalert_boolean">This field has to be a boolean (\&quot;true\&quot; or \&quot;false\&quot;): </string>
+    <string name="attributeeditor_inputalert_double">This field can only store double (decimal) values, using point (.) as decimal separator:</string>
+</resources>
