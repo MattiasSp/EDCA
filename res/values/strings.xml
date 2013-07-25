@@ -37,7 +37,7 @@
     <string name="app_name">Emergency Data Collector for Android&#8482;</string>
     <string name="app_name_short">EDCA</string>
     <string name="app_author">Mattias Spångmyr</string>
-    <string name="app_versiondate">2013–07–24</string>
+    <string name="app_versiondate">2013–07–25</string>
     <string name="app_contact">edca.contact@gmail.com</string>
     <string name="app_empty">&#8211;</string>
     <string name="app_webconnection">Indicates if the application is accessing or processing web content.</string>
@@ -93,6 +93,7 @@
     <string name="srvedit_alert_text_badport">The entered port number is not valid. Try again!</string>
     <string name="srvedit_alert_text_badworkspace">Workspace name cannot contain special characters or spaces!</string>
     <string name="srvedit_alert_text_badpath">The path must either be empty, or start (but not end) with a slash &quot;/&quot;. No blank spaces allowed.</string>
+    <string name="srvedit_alert_nonetwork">Network Connection Missing</string>
     <string name="service_alert_buttontext_ok">OK</string>
     <string name="service_connectionfailed">"Could not connect."</string>
     <string name="service_sdunavailable">The external storage (or memory card) is not available.</string>    
@@ -139,6 +140,7 @@
     <string name="mapviewer_selectsequence_nopoints">No points to add!</string>
     <string name="mapviewer_addposition_gettinglocation">Locating&#8230; This may take a while.</string>
     <string name="mapviewer_addposition_stopped">Stopped searching for location.</string>
+    <string name="mapviewer_addposition_gpsmissing">GPS is disabled.</string>
     <string name="mapviewer_addposition_locationmsg_acc">Accuracy (m):</string>
     <string name="mapviewer_addposition_locationmsg_tap">(tap to save)</string>
     <string name="mapviewer_addpositiondialog_title">Confirm Position</string>

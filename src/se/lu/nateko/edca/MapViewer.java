@@ -24,8 +24,10 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -101,7 +103,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * the active local layer.													*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.51, 2013-07-24												*
+ * @version 0.53, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class MapViewer extends Activity implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener, ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
@@ -149,6 +151,8 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	private Location mLocation;
 	/** The LocationCLient used to control and receive Location Updates. */
 	private LocationClient mLocationClient;
+	/** Flag indicating whether or not Location Updates are being requested. Signals whether or not to start requesting again after recreating the Activity. */
+	private boolean mLocating = false;
 	/** The TextView which displays location updates and responds to user clicks, letting the user save the location. */
 	private TextView mLocationMessageView;
 	/** The ImageView showing the image response of a GetMap request. */
@@ -166,11 +170,16 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 		Log.d(TAG, "onCreate(Bundle) called.");		
 		super.onCreate(savedInstanceState);
 		
-		/* Fetch any previously selected points back into mSelected. */
+		/* Restore state if there is one. */
 		if(savedInstanceState != null) {
+			/* Fetch any previously selected points back into mSelected. */
 			long[] array = savedInstanceState.getLongArray("mSelected");
 			if(array != null)
 				mSelected = new ArrayList<Long>(Arrays.asList(Utilities.longToObjectArray(array)));
+			/* Fetch the flag indicating whether or not to restart requesting Location Updates. */
+			mLocating = savedInstanceState.getBoolean("mLocating");
+			if(mLocating) // Restart Location Updates if they were being requested before the Activity was restarted.
+				startUpdates(false);
 		}
 		
 		setContentView(R.layout.mapviewer);
@@ -287,6 +296,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putLongArray("mSelected", Utilities.longToPrimitiveArray(mSelected.toArray(new Long[mSelected.size()])));
+        outState.putBoolean("mLocating", mLocating);
         mMapView.onSaveInstanceState(outState);
     }
 	
@@ -430,8 +440,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	 */
 	public void onClickOptionsAddPosition() {
 		Log.d(TAG, "onClickOptionsAddPosition() called.");
-		mService.showToast(mService.getString(R.string.mapviewer_addposition_gettinglocation), Toast.LENGTH_LONG);
-		mLocationClient.connect(); // Connect the LocationClient which, when it finishes, will call onConnected() where the LocationUpdates request can be made.
+		startUpdates(true);
 	}
 	
 	/**
@@ -891,6 +900,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 
 	public void onConnected(Bundle connectionHint) {
 		mLocationClient.requestLocationUpdates(LOCATION_REQUEST, this); // Start requesting Location Updates.
+		mLocating = true; // Signal that Location Updates are being requested.
 
 		/* Start a timer after after which to stop listening for location updates. */
 		mLocateTimer = new Timer();
@@ -924,11 +934,42 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	}
 	
 	/**
+	 * Starts requesting Location Updates, or sends
+	 * the user to the system's Location Settings if
+	 * the GPS is disabled.
+	 * @param alert true to display a Toast informing the user.
+	 */
+	private void startUpdates(boolean alert) {
+//		Log.d(TAG, "startUpdates(alert=" + String.valueOf(alert) + ") called.");
+		/* Check if the GPS provider is enabled, otherwise alert the user and send the user to the settings. */
+		if(((LocationManager) getSystemService(LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			mLocationClient.connect(); // Connect the LocationClient which, when it finishes, will call onConnected() where the LocationUpdates request can be made.
+			if(alert)
+				mService.showToast(mService.getString(R.string.mapviewer_addposition_gettinglocation), Toast.LENGTH_LONG);
+		}
+		else{
+			/* Create an AlertDialog to inform the user, which upon pressing "ok"
+	    	 * will send the user the the system's Location Settings. */
+	    	AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+			alertDialog.setMessage(getString(R.string.mapviewer_addposition_gpsmissing));		
+			/* Add a button to the dialog and set its text and button listener. */
+			alertDialog.setButton(getString(R.string.service_alert_buttontext_ok), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)); // Send the user to the system's Location Settings to enable the GPS source.
+					dialog.dismiss();    		      
+				}
+			});		
+			alertDialog.show(); // Display the dialog to the user.
+		}
+	}
+	
+	/**
 	 * Stops listening for Location Updates and removes
 	 * any text in mLocationMessageView showing the user's
 	 * location.
 	 */
 	private void stopUpdates() {
+		mLocating = false; // Signal that Location Updates have ceased.
 		if(mLocationClient.isConnected()) {
 			mLocationClient.removeLocationUpdates(this); // Stop listening for Location Updates.
 			mLocationClient.disconnect();

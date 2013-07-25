@@ -6,13 +6,18 @@ import se.lu.nateko.edca.BackboneSvc.SvcAccessor;
 import se.lu.nateko.edca.svc.LocalSQLDBhelper;
 import se.lu.nateko.edca.svc.ServerConnection;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -58,7 +63,7 @@ import android.widget.ToggleButton;
  * connections. Can also activate the currently displayed connection.		*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.54, 2013-07-18												*
+ * @version 0.55, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class ServerEditor extends Activity {
@@ -291,10 +296,21 @@ public class ServerEditor extends Activity {
     	}
     	else {
     		Log.d(TAG, "onClickConnect(View) called. Activating...");
-    		/* Make a GetCapabilities request. */
-        	String[] text  = getText();
-        	String currentDate = Utilities.DATE_LONG.format(new Date());    		
-    		mService.makeGetCapabilitiesRequest(new ServerConnection(getRowId(), currentDate, text[1], text[2], text[3], text[4], text[5]));
+    		/* Check for a network connection. I there is none, send the user to wireless settings. */
+    		NetworkInfo netinfo = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo(); // Get information about the active (?) network.
+    		if(netinfo != null) {
+    			if(netinfo.isConnected()) {
+    				/* Make a GetCapabilities request. */
+    	        	String[] text  = getText();
+    	        	String currentDate = Utilities.DATE_LONG.format(new Date());    		
+    	    		mService.makeGetCapabilitiesRequest(new ServerConnection(getRowId(), currentDate, text[1], text[2], text[3], text[4], text[5]));
+    			}
+    			else
+    				noNetwork(); // Report that the network is unavailable.    				
+    		}
+    		else
+    			noNetwork(); // Report that the network is unavailable.
+    		
     	}
     }
     
@@ -409,12 +425,12 @@ public class ServerEditor extends Activity {
     	 * a number corresponding to the field that is incorrect, or 0 if they are
     	 * all correctly input.
     	 */
-    	int switcher = 	(text[1].contentEquals("")) ?											1
+    	int switcher = 	(text[1].contentEquals("")) ?										1
     					: (!Utilities.isIP(text[2])) ?										2
     							: (Utilities.isInteger(text[3])[0] == 0) ?					3
     									: (!Utilities.isValidPath(text[4]))	?				4
     											: (!Utilities.isValidWorkspace(text[5])) ?	5
-    													:										0;
+    													:									0;
     	
     	/* If a field was filled incorrectly, display a warning and let the user return. */
     	if(switcher != 0) {
@@ -453,5 +469,25 @@ public class ServerEditor extends Activity {
      */
     public long getRowId() {
     	return mRowId;
+    }
+    
+    /**
+     * Alerts the user that a network connection is missing
+     * and send the user to the system's Wireless Settings.
+     */
+    private void noNetwork() {
+    	setConnectButtonState(BackboneSvc.DISCONNECTED); // Without a network connection it can't be connected.
+    	/* Create an AlertDialog to inform the user, which upon pressing "ok"
+    	 * will send the user the the system's Wireless Settings. */
+    	AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+		alertDialog.setMessage(getString(R.string.srvedit_alert_nonetwork));		
+		/* Add a button to the dialog and set its text and button listener. */
+		alertDialog.setButton(getString(R.string.service_alert_buttontext_ok), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS)); // Send the user to system Wireless Settings to fix the problem.
+				dialog.dismiss();    		      
+			}
+		});		
+		alertDialog.show(); // Display the dialog to the user.
     }
 }
