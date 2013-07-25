@@ -103,7 +103,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * the active local layer.													*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.53, 2013-07-25												*
+ * @version 0.54, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class MapViewer extends Activity implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener, ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
@@ -178,8 +178,6 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 				mSelected = new ArrayList<Long>(Arrays.asList(Utilities.longToObjectArray(array)));
 			/* Fetch the flag indicating whether or not to restart requesting Location Updates. */
 			mLocating = savedInstanceState.getBoolean("mLocating");
-			if(mLocating) // Restart Location Updates if they were being requested before the Activity was restarted.
-				startUpdates(false);
 		}
 		
 		setContentView(R.layout.mapviewer);
@@ -265,6 +263,9 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 			else
 				Log.i(TAG, "No active server connection.");
 		}
+
+		if(mLocating) // Restart Location Updates if they were being requested before the Activity was restarted.
+			startUpdates(false);
 	}
 
 	@Override
@@ -970,11 +971,15 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	 */
 	private void stopUpdates() {
 		mLocating = false; // Signal that Location Updates have ceased.
-		if(mLocationClient.isConnected()) {
-			mLocationClient.removeLocationUpdates(this); // Stop listening for Location Updates.
-			mLocationClient.disconnect();
-			mLocationMessageView.setText(""); // Remove the text showing Location Updates.
-		}		
+		if(mLocateTimer != null)
+			mLocateTimer.cancel(); // There is no need to wait if the Location Updates are already stopping.
+		if(mLocationClient != null) { // If there is no LocationClient there is no connection.
+			if(mLocationClient.isConnected()) {
+				mLocationClient.removeLocationUpdates(this); // Stop listening for Location Updates.
+				mLocationClient.disconnect();
+				mLocationMessageView.setText(""); // Remove the text showing Location Updates.
+			}
+		}
 	}
 	
 	/**

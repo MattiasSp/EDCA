@@ -91,10 +91,6 @@ public class MainMenu extends Activity {
     	
         setContentView(R.layout.main); // Display the "main" layout in this Activity.
         
-        /* Start the BackboneSvc Service so that the application process has a lower probability of being killed if all Activities unbind and are stopped. */
-        Intent serviceIntent = new Intent(this, BackboneSvc.class);
-        startService(serviceIntent);
-        
         super.onCreate(savedInstanceState);        
     }
     
@@ -131,9 +127,11 @@ public class MainMenu extends Activity {
     	
     	connectGooglePlayServices(); // Make sure that Google Play services are accessible.
     	
-    	/* Bind to the BackboneSvc Service. */
-		Intent serviceIntent = new Intent(MainMenu.this, BackboneSvc.class);		        
-        bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    	/* Start the BackboneSvc Service so that it has a lower probability of being killed if all Activities unbind and are stopped. */
+        startService(new Intent(this, BackboneSvc.class));
+    	
+    	/* Bind to the BackboneSvc Service. */	        
+        bindService(new Intent(MainMenu.this, BackboneSvc.class), mServiceConnection, Context.BIND_AUTO_CREATE);
         
 		super.onResume();
 	}

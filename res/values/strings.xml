@@ -49,7 +49,7 @@
     <string name="menu_button_about">About&#8230;</string>
     <string name="menu_button_exit">Exit EDCA</string>
     <string name="menu_loseunsavedalert_title">Upload/Store Your Data!</string>
-    <string name="menu_loseunsavedalert_msg">Before exiting, the current layer\'s data should be uploaded to the server or stored locally. Any unsaved data may be lost.</string>
+    <string name="menu_loseunsavedalert_msg">Before exiting, the currently active layer\'s data should be uploaded to the server or stored locally. Any unsaved data will be lost.</string>
     <string name="menu_loseunsavedalert_confirm">Exit</string>
     <string name="menu_loseunsavedalert_cancel">Return</string>
     <string name="about_title_about">About EDCA</string>

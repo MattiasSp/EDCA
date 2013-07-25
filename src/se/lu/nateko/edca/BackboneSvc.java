@@ -68,7 +68,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * most of the other application-wide information.							*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.91, 2013-07-24												*
+ * @version 0.92, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class BackboneSvc extends Service {
@@ -696,9 +696,12 @@ public class BackboneSvc extends Service {
 	public void makeGetMapRequest(ServerConnection srv, View layout, LatLngBounds bounds) {		
 		Log.d(TAG, "makeGetMapRequest(ServerConnection=" + srv.getName() + ", View, BBox) called.");
 		/*
-		 * Start a separate Thread in which a getMap request is created
-		 * and the input ServerConnection is set as the new ActiveConnection if the server responds.
+		 * Start a separate Thread in which a getMap request is created.
+		 * If there is already a GetCapabilities thread running, kill it
+		 * before starting the new one.
 		 */
+		if(getActiveGetMap() != null)
+			getActiveGetMap().cancel(true);
 		setActiveGetMap(new GetMap(this, layout.getWidth(), layout.getHeight(), bounds));
 		getActiveGetMap().execute(srv);
 	}
