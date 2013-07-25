@@ -27,7 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /********************************COPYRIGHT***********************************
  * This file is part of the Emergency Data Collector for Android™ (EDCA).	*
@@ -193,13 +192,13 @@ public class LayerViewer extends ListActivity {
 		
 		/* Display a toast informing the user if there is no active layer. */
 		if(mService.getActiveLayer() == null) {
-			Toast.makeText(mService.getActiveActivity(), getString(R.string.layerviewer_uploadtoast_noactivelayer), Toast.LENGTH_LONG).show();
+			mService.showToast(R.string.layerviewer_uploadtoast_noactivelayer);
 			return;
 		}
 		
 		/* Display a toast informing the user if there is no data to upload/store. */
 		if(mService.getActiveLayer().getGeometry().size() < 1) {
-			Toast.makeText(mService.getActiveActivity(), getString(R.string.layerviewer_uploadtoast_nodata), Toast.LENGTH_LONG).show();
+			mService.showToast(R.string.layerviewer_uploadtoast_nodata);
 			return;
 		}
 		

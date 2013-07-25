@@ -49,7 +49,6 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.Settings.Secure;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -99,7 +98,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * handles uploading of a layer's data to its corresponding server layer.	*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.50, 2013-07-22												*
+ * @version 0.51, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
@@ -238,11 +237,11 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 					mService.getSQLhelper().updateData(LocalSQLDBhelper.TABLE_LAYER, modeCursor.getLong(0), LocalSQLDBhelper.KEY_LAYER_ID, new String[]{LocalSQLDBhelper.KEY_LAYER_USEMODE}, new String[]{String.valueOf(modeCursor.getLong(2) * LocalSQLDBhelper.LAYER_MODE_ACTIVE)}); // Add the "Active" mode to the current mode.
 					mService.updateLayoutOnState();
 				}
-				Toast.makeText(mService.getActiveActivity(), R.string.layerviewer_uploadtoast_readsuccess, Toast.LENGTH_LONG).show();
+				mService.showToast(R.string.layerviewer_uploadtoast_readsuccess);
 			}
 			else if(mRwMode == RWMODE_UPLOAD) {
 				mService.stopAnimation(); // Stop the animation, showing that a web communicating thread is no longer active.
-				Toast.makeText(mService.getActiveActivity(), R.string.layerviewer_uploadtoast_uploadsuccess, Toast.LENGTH_LONG).show();
+				mService.showToast(R.string.layerviewer_uploadtoast_uploadsuccess);
 			}
 			else { // Successful write operation.
 				Log.i(TAG, "Write operation successful.");
@@ -251,13 +250,13 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 				if(modeCursor.moveToFirst()) {
 					mService.getSQLhelper().updateData(LocalSQLDBhelper.TABLE_LAYER, modeCursor.getLong(0), LocalSQLDBhelper.KEY_LAYER_ID, new String[]{LocalSQLDBhelper.KEY_LAYER_USEMODE}, new String[]{String.valueOf(modeCursor.getLong(2) * LocalSQLDBhelper.LAYER_MODE_STORE)}); // Add the "Stored" mode to the current mode.
 					mService.updateLayoutOnState();
-					Toast.makeText(mService.getActiveActivity(), R.string.layerviewer_uploadtoast_writesuccess, Toast.LENGTH_LONG).show();
+					mService.showToast(R.string.layerviewer_uploadtoast_writesuccess);
 				} else {Log.e(TAG, "No such layer.");}
 			}
 		}
 		else {
 			if(mRwMode == RWMODE_READ)
-				Toast.makeText(mService.getActiveActivity(), R.string.layerviewer_uploadtoast_readfail, Toast.LENGTH_LONG).show();
+				mService.showToast(R.string.layerviewer_uploadtoast_readfail);
 			else if(mRwMode == RWMODE_WRITE && mFileConflict) {
 				/* If write failed because of a file conflict, ask to overwrite the data. */
 				new AlertDialog.Builder(mService.getActiveActivity())
@@ -294,7 +293,7 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 	        	.show();
 			}
 			else
-				Toast.makeText(mService.getActiveActivity(), R.string.layerviewer_uploadtoast_writefail, Toast.LENGTH_LONG).show();
+				mService.showToast(R.string.layerviewer_uploadtoast_writefail);
 		}
 		
 		/* Reactivate the upload button and set the flag in the BackboneSvc. */
@@ -695,7 +694,7 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 				result = result + String.valueOf(id) + " " + String.valueOf(sequenceGeom.toText());
 			} catch (Exception e) {
 				Log.e(TAG, e.toString());
-				mService.showToast(mService.getString(R.string.mapviewer_combinesequence_invalid), Toast.LENGTH_LONG); // Notice the user of invalid point sequences.
+				mService.showToast(R.string.mapviewer_combinesequence_invalid); // Notice the user of invalid point sequences.
 				Exception returnExc = new Exception("Could not create geometry.");
 				throw returnExc;
 			}				

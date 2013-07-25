@@ -51,7 +51,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
  * other classes.															*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.46, 2013-07-24												*
+ * @version 0.47, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public abstract class Utilities {
@@ -223,10 +223,6 @@ public abstract class Utilities {
 
 		if(b) {
 			Log.w(TAG, "The workspace string has special characters.");
-			return false;
-		}
-		else if(input.equalsIgnoreCase("")) {
-			Log.w(TAG, "The workspace string is empty.");
 			return false;
 		}
 		else return true; // No special characters (valid).		

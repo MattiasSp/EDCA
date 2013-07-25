@@ -138,10 +138,11 @@
     <string name="mapviewer_optionsmenu_combinesequence">Combine Selected Points</string>
     <string name="mapviewer_optionsmenu_clearselection">Clear Selection</string>
     <string name="mapviewer_selectsequence_nopoints">No points to add!</string>
+    <string name="mapviewer_selectsequence_taptoselect">Forming sequence, tap points to select.</string>
     <string name="mapviewer_addposition_gettinglocation">Locating&#8230; This may take a while.</string>
     <string name="mapviewer_addposition_stopped">Stopped searching for location.</string>
     <string name="mapviewer_addposition_gpsmissing">GPS is disabled.</string>
-    <string name="mapviewer_addposition_locationmsg_acc">Accuracy (m):</string>
+    <string name="mapviewer_addposition_locationmsg_acc">Accuracy (m, &#177;&#963;):</string>
     <string name="mapviewer_addposition_locationmsg_tap">(tap to save)</string>
     <string name="mapviewer_addpositiondialog_title">Confirm Position</string>
     <string name="mapviewer_addpositiondialog_question">Save this location?</string>

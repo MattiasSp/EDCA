@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -65,7 +66,7 @@ import android.widget.TextView;
  *	- Delete ServerConnections.												*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.24, 2013-06-25												*
+ * @version 0.25, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class ServerViewer extends ListActivity {
@@ -143,19 +144,38 @@ public class ServerViewer extends ListActivity {
 	/**
 	 * A method which will display the name of the currently active ServerConnection in green color.
 	 * @param srv The ServerConnection to display the name of.
-	 * @return Boolean showing true if successful, otherwise false.
 	 */
-	public boolean setLayout_ActiveServer(ServerConnection srv) {
+	public void setLayout_ActiveServer(ServerConnection srv) {
 		TextView activesrv = (TextView) findViewById(R.id.srvstart_content_activesrv);
 		if(srv != null) {
 			Log.i(TAG, "Show: '" + srv.getName() + "' " + srv.toString());			
 			activesrv.setText(srv.getName());
 			activesrv.setTextColor(Color.GREEN);
-			return true;
 		} else {
 			activesrv.setText(R.string.srvstart_content_noactivesrv);
 			activesrv.setTextColor(Color.GRAY);
-			return false;
+		}
+	}
+	
+	/**
+	 * A method which will disable the renew button if a connection
+	 * attempt is being made, or enable it otherwise.
+	 * @param connectState The Connect State regarding the geospatial server, managed by the BackboneSvc.
+	 */
+	public void setLayout_RenewButton(int connectState) {
+		Log.v(TAG, "setLayout_RenewButton(" + ((connectState == BackboneSvc.CONNECTING) ? "enable" : "disable") + ") called.");	
+		Button renewButton = (Button) findViewById(R.id.srvstart_button_renew);
+		if(renewButton != null) {
+			switch(connectState) {
+				case BackboneSvc.CONNECTING:
+					renewButton.setEnabled(false);
+					renewButton.setClickable(false);
+					break;
+				default:
+					renewButton.setEnabled(true);
+					renewButton.setClickable(true);
+					break;
+			}
 		}
 	}
 	

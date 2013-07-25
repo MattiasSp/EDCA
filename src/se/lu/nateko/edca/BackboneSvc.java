@@ -68,7 +68,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * most of the other application-wide information.							*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.92, 2013-07-25												*
+ * @version 0.93, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class BackboneSvc extends Service {
@@ -568,6 +568,7 @@ public class BackboneSvc extends Service {
 			case ACTIVITY_SERVERVIEWER: {
 				ServerViewer srvViewer = (ServerViewer) getActiveActivity();
 				srvViewer.setLayout_ActiveServer(getActiveServer()); // Show the currently active ServerConnection name in green.
+				srvViewer.setLayout_RenewButton(getConnectState()); // Disable the renew button while a connection attempt is ongoing.
 				break;
 			}
 			case ACTIVITY_LAYERVIEWER: {
@@ -820,19 +821,17 @@ public class BackboneSvc extends Service {
     
     /**
      * Method that displays an on screen text (Toast) to the user showing
-     * the string argument as the message text.
-     * @param message Message to display in the Toast.
-     * @param duration The duration of the message.
+     * the string resource argument as the message text.
+     * @param message Resource ID of a string resource holding the message to display in the Toast.
      */
-    public void showToast(String message, int duration) {
-    	Log.d(TAG, "showToast(String, duration(s)=" + duration + ") called.");
-    	final String msg = message;
-    	final int dur = duration;
+    public void showToast(int message) {
+    	Log.d(TAG, "showToast(String) called.");
+    	final int msg = message;
     	
     	/* Show the Toast on the UI thread. */
     	Runnable action = new Runnable() {
 			public void run() {
-				Toast.makeText(getActiveActivity(), msg, dur).show();
+				Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 			}
 		};
 		getActiveActivity().runOnUiThread(action);

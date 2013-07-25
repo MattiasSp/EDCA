@@ -35,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -103,7 +102,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * the active local layer.													*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.54, 2013-07-25												*
+ * @version 0.55, 2013-07-25												*
  * 																			*
  ****************************************************************************/
 public class MapViewer extends Activity implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener, ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
@@ -356,7 +355,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 		Log.d(TAG, "onClickLocationMessage() called on location: " + Utilities.coordinateToString(mLocation.getLatitude(), mLocation.getLongitude()));
 		stopUpdates(); // Stop requesting Location Updates.
 		mLocateTimer.cancel(); // No need to wait anymore.
-		showAcceptLocationDialog(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), mLocation.getAccuracy()); // Ask whether or not to accept the selected point.
+		showAcceptLocationDialog(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), mLocation.getAccuracy(), true); // Ask whether or not to accept the selected point.
 	}
 	
 	/**
@@ -465,10 +464,11 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 		Log.d(TAG, "onClickOptionsSelectSequence() called.");
 		
 		if(!mService.getActiveLayer().hasGeometry()) {
-			mService.showToast(getString(R.string.mapviewer_selectsequence_nopoints), Toast.LENGTH_LONG);
+			mService.showToast(R.string.mapviewer_selectsequence_nopoints);
 			return;
 		}
 		mService.mCombining = true;
+		mService.showToast(R.string.mapviewer_selectsequence_taptoselect);
 		Log.i(TAG, "Now combining points.");
 	}
 	
@@ -487,7 +487,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 						(mService.getActiveLayer().getTypeMode() == GeographyLayer.TYPE_POLYGON) 	?	3	:	0;
 		if(mSelected.size() < reqPoints) {
 				Log.w(TAG, "Not enough points selected for this type of geometry.");
-				mService.showToast(getString(R.string.mapviewer_combinesequence_noselected), Toast.LENGTH_LONG);
+				mService.showToast(R.string.mapviewer_combinesequence_noselected);
 		}
 		/* Else, test the geometry according to the type of layer, and if valid, add it to the layer's point sequences. */
 		else {
@@ -516,7 +516,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 				startActivity(intentAtt);
 			} catch (Exception e) {
 				Log.w(TAG, e.toString());
-				mService.showToast(mService.getString(R.string.mapviewer_combinesequence_invalid), Toast.LENGTH_LONG); // Notice the user of invalid point sequences.
+				mService.showToast(R.string.mapviewer_combinesequence_invalid); // Notice the user of invalid point sequences.
 			}
 		}
 			
@@ -704,7 +704,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 		Log.d(TAG, "onMapLongClick(" + Utilities.coordinateToString(point.latitude, point.longitude) + ") called.");
 		if(mService.getActiveLayer() != null) { // There must be an active layer to add points to.
 			Log.v(TAG, "Long press allowed, ask to add location.");
-			showAcceptLocationDialog(point, -1);
+			showAcceptLocationDialog(point, -1, false);
 		}
 		
 	}
@@ -778,10 +778,12 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	 * not to save a specified location.
 	 * @param location The LatLng location which should or should not be saved.
 	 * @param accuracy The accuracy with which the location was found. Pass -1 to not include accuracy in the Dialog.
+	 * @param zoomToLocation Pass true to pan to the location if the user accepts it. 
 	 */
-	private void showAcceptLocationDialog(LatLng location, float accuracy) {
+	private void showAcceptLocationDialog(LatLng location, float accuracy, boolean panToLocation) {
 		final LatLng loc = location;
 		final float acc = accuracy;
+		final boolean pan = panToLocation;
 			
 		/* Show a dialog with the new location coordinates and let the user accept or discard this as a feature point. */
 		new AlertDialog.Builder(mService.getActiveActivity())
@@ -800,9 +802,9 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	        			LatLng point = new LatLng(loc.latitude, loc.longitude);
 	        			long newGeomId = mService.getActiveLayer().addGeometry(point); // Save the pressed location.
 	        			addMarker(newGeomId, point, Utilities.coordinateToString(point.latitude, point.longitude), false); // Display the new point as a Marker.
-	        			
-	        			/* Zoom to the location of the selected fix. */
-	        			zoomToLocation(point, -1, true);
+
+	        			if(pan)
+	        				zoomToLocation(point, -1, true); // Zoom to the location of the selected fix.
 	    				
 	        			/* If a point layer is active and has at least one attribute: start the AttributeEditor allowing attributes to be entered. */
 	        			if(mService.getActiveLayer().getTypeMode() == GeographyLayer.TYPE_POINT && mService.getActiveLayer().getNonGeomFields().size() >= 1) {
@@ -913,7 +915,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
         				/* The following will be queued on the main (UI) thread. */
         				stopUpdates(); // Stop receiving Location Updates.
                 		Log.i(TAG, "No location selected, suggest the last one.");
-                		showAcceptLocationDialog(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), mLocation.getAccuracy());
+                		showAcceptLocationDialog(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), mLocation.getAccuracy(), true);
         			}
         		});
                 this.cancel(); //Terminate the timer thread.
@@ -922,7 +924,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	}
 
 	public void onDisconnected() {
-		mService.showToast(getString(R.string.mapviewer_addposition_stopped), Toast.LENGTH_LONG);
+		mService.showToast(R.string.mapviewer_addposition_stopped);
 	}
 
 	public void onConnectionFailed(ConnectionResult result) {
@@ -946,7 +948,7 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 		if(((LocationManager) getSystemService(LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			mLocationClient.connect(); // Connect the LocationClient which, when it finishes, will call onConnected() where the LocationUpdates request can be made.
 			if(alert)
-				mService.showToast(mService.getString(R.string.mapviewer_addposition_gettinglocation), Toast.LENGTH_LONG);
+				mService.showToast(R.string.mapviewer_addposition_gettinglocation);
 		}
 		else{
 			/* Create an AlertDialog to inform the user, which upon pressing "ok"
