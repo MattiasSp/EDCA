@@ -37,7 +37,7 @@
     <string name="app_name">Emergency Data Collector for Android&#8482;</string>
     <string name="app_name_short">EDCA</string>
     <string name="app_author">Mattias Spångmyr</string>
-    <string name="app_versiondate">2013–07–25</string>
+    <string name="app_versiondate">2013–07–31</string>
     <string name="app_contact">edca.contact@gmail.com</string>
     <string name="app_empty">&#8211;</string>
     <string name="app_webconnection">Indicates if the application is accessing or processing web content.</string>

@@ -98,7 +98,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * handles uploading of a layer's data to its corresponding server layer.	*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.51, 2013-07-25												*
+ * @version 0.52, 2013-07-31												*
  * 																			*
  ****************************************************************************/
 public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
@@ -811,6 +811,7 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 //		Log.d(TAG, "formInsertElements() called.");
 
 		/* The parts of the Insert statements to form. */
+		// TODO Make static parts static final instance variables so they don't need to be instantiated for each GeoHelper.
 		String inserts = ""; // The total, combined, result.
 		String wfsStart = "";
 		String geomFieldStart = "";
@@ -884,6 +885,7 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 			
 			/* Form the non-geometry fields and attributes, but only those with input. */
 			try {
+				atts = ""; // Reset the attributes string.
 				for(LayerField field : mGeoLayer.getNonGeomFields()) {
 					if(!mGeoLayer.getAttributes().get(featureId).get(field.getName()).equalsIgnoreCase("")) {
 						atts = atts + " <" + mNamespace + ":" + field.getName() + ">"
