@@ -66,7 +66,7 @@ import android.widget.TextView;
  *	- Delete ServerConnections.												*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.25, 2013-07-25												*
+ * @version 0.27, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class ServerViewer extends ListActivity {
@@ -221,8 +221,26 @@ public class ServerViewer extends ListActivity {
      */
     public void onClickContextEdit(long id) {
     	Log.d(TAG, "onClickContextEdit(id=" + String.valueOf(id) + ") called.");
+    	
+    	/* Pass in the stored ServerConnection info to fill the EditTexts and determine the address mode. */
+        Cursor server = mService.getSQLhelper().fetchData(LocalSQLDBhelper.TABLE_SRV, LocalSQLDBhelper.KEY_SRV_COLUMNS, id, null, false); // Get the server info on the selected ServerConnection.
+        startManagingCursor(server);
+        server.moveToFirst();
+        String lastuse = server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_LASTUSE));
+        lastuse = (Utilities.isValidDate(lastuse, Utilities.DATE_LONG)) ? lastuse : getString(R.string.srvedit_content_nolastuse); // If there is no valid lastuse text stored, use e.g. "never".
+        String[] text = new String[] { lastuse,
+        		server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_NAME)),
+        		server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_SIMPLE)),
+        		server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_IP)),
+        		server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_PORT)),
+        		server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_PATH)),
+        		server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_WORKSPACE))};
+    	
         Intent i = new Intent(this, ServerEditor.class);
-        i.putExtra(LocalSQLDBhelper.KEY_SRV_ID, id);    	
+        i.putExtra(BackboneSvc.PACKAGE_NAME + ".id", id);
+        i.putExtra(BackboneSvc.PACKAGE_NAME + ".editsenabled", false);
+        i.putExtra(BackboneSvc.PACKAGE_NAME + ".addressmode", server.getInt(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_MODE)));
+        i.putExtra(BackboneSvc.PACKAGE_NAME + ".text", text);
         startActivity(i);
     }
     

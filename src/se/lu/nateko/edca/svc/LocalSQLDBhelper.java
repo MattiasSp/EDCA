@@ -56,7 +56,7 @@ import android.util.Log;
  * 5 = Active (targeted for data collection).
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.44, 2013-07-24												*
+ * @version 0.50, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class LocalSQLDBhelper extends SQLiteOpenHelper {
@@ -92,6 +92,8 @@ public class LocalSQLDBhelper extends SQLiteOpenHelper {
     public static final String KEY_SRV_LASTUSE = "srvlastuse";
     /** Constant defining the name of the "name" field of the ServerConnection table in the database. */
     public static final String KEY_SRV_NAME = "srvname";
+    /** Constant defining the name of the "simple" field of the ServerConnection table in the database. */
+    public static final String KEY_SRV_SIMPLE = "srvsimple";
     /** Constant defining the name of the "ip" field of the ServerConnection table in the database. */
     public static final String KEY_SRV_IP = "srvip";
     /** Constant defining the name of the "port" field of the ServerConnection table in the database. */
@@ -100,8 +102,10 @@ public class LocalSQLDBhelper extends SQLiteOpenHelper {
     public static final String KEY_SRV_PATH = "srvpath";
     /** Constant defining the name of the "workspace" field of the ServerConnection table in the database. */
     public static final String KEY_SRV_WORKSPACE = "srvworkspace";
+    /** Constant defining the name of the "mode" field of the ServerConnection table in the database. */
+    public static final String KEY_SRV_MODE = "srvmode";
     /** Constant combining the names of all fields of the ServerConnection table in the database. */
-    public static final String[] KEY_SRV_COLUMNS = new String[] {KEY_SRV_ID, KEY_SRV_LASTUSE, KEY_SRV_NAME, KEY_SRV_IP, KEY_SRV_PORT, KEY_SRV_PATH, KEY_SRV_WORKSPACE};
+    public static final String[] KEY_SRV_COLUMNS = new String[] {KEY_SRV_ID, KEY_SRV_LASTUSE, KEY_SRV_NAME, KEY_SRV_SIMPLE, KEY_SRV_IP, KEY_SRV_PORT, KEY_SRV_PATH, KEY_SRV_WORKSPACE, KEY_SRV_MODE};
     
     /** Constant defining the name of the table storing available layers. */
     public static final String TABLE_LAYER = "layers";
@@ -131,8 +135,8 @@ public class LocalSQLDBhelper extends SQLiteOpenHelper {
     /** Server Table creation SQL statement. */
 	private static final String CREATE_TABLE_SRV =
         "create table " + TABLE_SRV + " (" + KEY_SRV_ID + " integer primary key autoincrement, "
-        + KEY_SRV_NAME + " text not null, " + KEY_SRV_IP + " text not null, " + KEY_SRV_PORT + " text not null, "
-        + KEY_SRV_PATH + " text, " + KEY_SRV_WORKSPACE + " text, " + KEY_SRV_LASTUSE + " date);";
+        + KEY_SRV_NAME + " text not null, " + KEY_SRV_SIMPLE + " text, " + KEY_SRV_IP + " text, " + KEY_SRV_PORT + " text, "
+        + KEY_SRV_PATH + " text, " + KEY_SRV_WORKSPACE + " text, " + KEY_SRV_MODE + " integer not null, " + KEY_SRV_LASTUSE + " date);";
 	
 	/** Layers Table creation SQL statement. */
 	private static final String CREATE_TABLE_LAYER =
@@ -171,7 +175,7 @@ public class LocalSQLDBhelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-                + newVersion + ", which will destroy all old data");
+                + newVersion + ", which will destroy all old data.");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SRV);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LAYER);
         onCreate(db);

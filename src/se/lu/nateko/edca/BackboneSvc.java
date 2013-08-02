@@ -68,7 +68,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * most of the other application-wide information.							*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.93, 2013-07-25												*
+ * @version 0.94, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class BackboneSvc extends Service {
@@ -106,9 +106,9 @@ public class BackboneSvc extends Service {
 	public boolean mCombining = false;
 
 	/** Flag passed to renewLastServerConnection(boolean) to allow it to run. Will be changed to false after running once to ensure that the method is not run repeatedly without the user's request. */
-	public static boolean mInitialRenewSrvConnection = true;
+	public boolean mInitialRenewSrvConnection = true;
 	/** Checked in renewActiveLayer(boolean) and changed to false after running the method to ensure that it is only run once. */
-	private boolean mInitialRenewLayer = true;
+	public boolean mInitialRenewLayer = true;
 	
 	/** The ServerConnection currently connected, or connecting, to. */
 	private ServerConnection mActiveServer;
@@ -141,9 +141,6 @@ public class BackboneSvc extends Service {
 	
 	/** Binder given to client Activities in order to access this Service. */
     private final IBinder mBinder = new SvcAccessor(this);
-
-    /** If the user leaves the ServerEditor activity, any entered text is held here temporarily until the service is destroyed or a ServerConnection is saved. */
-    public String[] mTempText;
 
 	@Override
 	public void onCreate() {
@@ -348,8 +345,7 @@ public class BackboneSvc extends Service {
 		Log.d(TAG, "reportFailedConnection(reportFailure=" + String.valueOf(reportFailure) + ") called.");
 		/* Clear the active server since it cannot be contacted and notify the user. */
 		setActiveServer(null);
-		setConnectingRow((long) 0);
-		setConnectState(BackboneSvc.DISCONNECTED);		
+		setConnectState(BackboneSvc.DISCONNECTED, 0);		
 		clearRemoteLayers();
 		updateLayoutOnState();
 		if(reportFailure)
@@ -357,13 +353,16 @@ public class BackboneSvc extends Service {
 	}
 	
 	/**
-	 * Sets the value of the connect state flag.
+	 * Sets the value of the connect state flag
+	 * and the connecting row.
 	 * Can be DISCONNECTED (0), CONNECTED (1) or CONNECTING (2).
 	 * @param state The state to set.
+	 * @param row The row that is Connected to, or Connecting to. Pass 0 if not connected to any server.
 	 */
-	public void setConnectState(int state) {
-		Log.v(TAG, "setConnectState(" + String.valueOf(state) + ") called.");
+	public void setConnectState(int state, long row) {
+		Log.v(TAG, "setConnectState(state=" + String.valueOf(state) + ", row=" + String.valueOf(row) + ") called.");
 		mConnectState = state;
+		mConnectingRow = row;
 	}
 	
 	/**
@@ -374,15 +373,6 @@ public class BackboneSvc extends Service {
 	public int getConnectState() {
 //		Log.d(TAG, "getConnectState() called.");
 		return mConnectState;
-	}
-	
-	/**
-	 * Sets which row (in the server table) that is currently being connected to.
-	 * @param connectingRow The row being connected to.
-	 */
-	public void setConnectingRow(Long connectingRow) {
-		Log.v(TAG, "setConnectingRow(" + String.valueOf(connectingRow) + ") called.");
-		mConnectingRow = connectingRow;
 	}
 	
 	/**
@@ -556,13 +546,7 @@ public class BackboneSvc extends Service {
 		switch(activityFlag) {
 			case ACTIVITY_SERVEREDITOR: {
 				ServerEditor srvEditor = (ServerEditor) getActiveActivity();
-				srvEditor.populateFields();
-				if(getActiveServer() != null && srvEditor.getRowId() == getActiveServer().getID()) // If there is an active server, and the ServerEditor is viewing it.
-						srvEditor.setConnectButtonState(CONNECTED);
-				else if(srvEditor.getRowId() == getConnectingRow()) // If the ServerEditor is viewing a non-active server, that is currently being connected to.
-					srvEditor.setConnectButtonState(CONNECTING);
-				else // If there is no connection either present or underway related to this server.
-					srvEditor.setConnectButtonState(DISCONNECTED);				
+				srvEditor.updateLayout(null);
 				break;
 			}
 			case ACTIVITY_SERVERVIEWER: {
@@ -575,7 +559,7 @@ public class BackboneSvc extends Service {
 				LayerViewer lv = (LayerViewer) getActiveActivity();
 				lv.setLayout_ActiveLayer(getActiveLayer());
 				lv.populateLayerList();
-				lv.setLayout_EnableUploadButton(!getUploading());
+				lv.setLayout_UploadButton((!getUploading() && getConnectState() != CONNECTING), getUploading()); // Don't allow upload action during another upload or during a server connection attempt.
 				/*
 		         * By sending the code in "action" to the runOnUiThread() method from a separate thread,
 		         * its code will be placed in the UI Thread Message queue and thus happen after other
@@ -633,7 +617,7 @@ public class BackboneSvc extends Service {
 		       	Log.i(TAG, "No active server connection could be renewed.");
 			}
 			else
-				makeGetCapabilitiesRequest(new ServerConnection(lastSrv.getLong(0), Utilities.DATE_LONG.format(new Date()), lastSrv.getString(2), lastSrv.getString(3), lastSrv.getString(4), lastSrv.getString(5), lastSrv.getString(6)));
+				makeGetCapabilitiesRequest(new ServerConnection(lastSrv.getLong(0), Utilities.DATE_LONG.format(new Date()), lastSrv.getString(2), lastSrv.getString(3), lastSrv.getString(4), lastSrv.getString(5), lastSrv.getString(6), lastSrv.getString(7), lastSrv.getInt(8)));
 		}
 	}
 	
@@ -641,10 +625,11 @@ public class BackboneSvc extends Service {
 	 * Try to load a Layer from the stored information
 	 * in the local SQLite database and on the external
 	 * storage of the device.
+	 * @param allow Whether or not to allow the renew. Used with a flag to prevent multiple calls on application start-up.
 	 */
-	public void renewActiveLayer() {
+	public void renewActiveLayer(boolean allow) {
 		Log.d(TAG, "renewActiveLayer() called. First time: " + String.valueOf(mInitialRenewLayer));
-		if(mInitialRenewLayer) {
+		if(allow) {
 			mInitialRenewLayer = false; // Flag the action so it will not be executed again.
 			
 			/* Find the active layer if there is one and load it. */
@@ -673,8 +658,8 @@ public class BackboneSvc extends Service {
 	public void makeGetCapabilitiesRequest(ServerConnection srv) {
 		Log.d(TAG, "makeGetCapabilitiesRequest(ServerConnection=" + srv.getName() + ") called.");
 		/* Record the new connect state and which server is being connected to. */
-		setConnectState(CONNECTING);
-		setConnectingRow(srv.getID());
+		setConnectState(CONNECTING, srv.getID());
+		startAnimation(); // Start the animation, showing that a web communicating thread is active
 		updateLayoutOnState();
 		/*
 		 * Start a separate Thread in which a getCapabilities request is created
@@ -715,6 +700,11 @@ public class BackboneSvc extends Service {
 	 */
 	public void makeDescribeFeatureTypeRequest(ServerConnection srv, String layerName, long rowId) {
 		Log.d(TAG, "makeDescribeFeatureTypeRequest(ServerConnection=" + srv.getName() + ", layerName=" + layerName + ", rowId=" + String.valueOf(rowId) + ") called.");
+		/* Report that a server is being contacted. */
+		setConnectState(CONNECTING, srv.getID());
+		startAnimation(); // Start the animation, showing that a web communicating thread is active.
+		updateLayoutOnState();
+		/* Start the request on a separate thread (ASyncTask). */
 		mDescribeFeatureType = new DescribeFeatureType(this, layerName, rowId);
 		mDescribeFeatureType.execute(srv);
 	}

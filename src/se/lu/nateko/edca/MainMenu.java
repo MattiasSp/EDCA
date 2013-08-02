@@ -56,7 +56,7 @@ import android.view.View;
  * handles the main menu and makes some initialization calls.				*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.52, 2013-07-24												*
+ * @version 0.53, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class MainMenu extends Activity {
@@ -144,7 +144,7 @@ public class MainMenu extends Activity {
 		Log.d(TAG, "onBound() called.");
 		mService.setActiveActivity(MainMenu.this);
 		findViewById(R.id.main_webconnection).setAnimation(mService.getAnimationNoQueue());
-		mService.renewLastSrvConnection(BackboneSvc.mInitialRenewSrvConnection);
+		mService.renewLastSrvConnection(mService.mInitialRenewSrvConnection);
 	}
     
     @Override

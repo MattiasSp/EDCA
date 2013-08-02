@@ -36,6 +36,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import se.lu.nateko.edca.BackboneSvc;
 import se.lu.nateko.edca.LayerViewer;
 import se.lu.nateko.edca.R;
+import se.lu.nateko.edca.ServerEditor;
 import se.lu.nateko.edca.Utilities;
 import se.lu.nateko.edca.svc.GeographyLayer.LayerField;
 import android.app.AlertDialog;
@@ -98,7 +99,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * handles uploading of a layer's data to its corresponding server layer.	*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.52, 2013-07-31												*
+ * @version 0.54, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
@@ -276,7 +277,7 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 			else if(mRwMode == RWMODE_UPLOAD) {
 				/* If an upload failed, ask to store the data locally. */
 				mService.stopAnimation(); // Stop the animation, showing that a web communicating thread is no longer active.
-				mService.clearConnection(false); // Report the failed connection.
+				mService.clearConnection(false); // Clear the failed connection without reporting (specialized report below).
 				
 				new AlertDialog.Builder(mService.getActiveActivity())
 	        	.setIcon(android.R.drawable.ic_menu_upload)
@@ -299,7 +300,7 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 		/* Reactivate the upload button and set the flag in the BackboneSvc. */
 		mService.setUploading(false);
 		if(mService.getActiveActivity().getLocalClassName().equalsIgnoreCase("LayerViewer"))
-			((LayerViewer) mService.getActiveActivity()).setLayout_EnableUploadButton(true);
+			((LayerViewer) mService.getActiveActivity()).setLayout_UploadButton(true, false);
 		
 		super.onPostExecute(result);
 	}
@@ -466,7 +467,10 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 		/* Try to form an URI from the supplied ServerConnection info. */
 		if(mService.getActiveServer() == null) // Cannot connect unless there is an active connection.
 			return false;
-		String uriString = "http://" + mService.getActiveServer().toString() + "/wfs";
+		String uriString = (mService.getActiveServer().getMode() == ServerEditor.SIMPLE_ADDRESS_MODE ?
+				mService.getActiveServer().getSimpleAddress()
+				: "http://" + mService.getActiveServer().toString())
+					+ "/wfs";
 		
 		/* Post all geometry from the active layer to that layer on the geospatial server. */
 		HttpResponse response;
@@ -517,7 +521,7 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 		
 		if(responseSuccessful) {
 			/* Remove all uploaded geometry from the active layer and the local storage. */
-			mGeoLayer.clearGeometry();
+			mGeoLayer.clearGeometry(false);
 			
 			deleteGeographyLayer(mGeoLayer.getName());		
 		

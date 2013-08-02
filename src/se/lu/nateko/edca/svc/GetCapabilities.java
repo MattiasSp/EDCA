@@ -27,6 +27,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import se.lu.nateko.edca.BackboneSvc;
 import se.lu.nateko.edca.R;
+import se.lu.nateko.edca.ServerEditor;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -71,7 +72,7 @@ import android.util.Log;
  * UI thread.																*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.45, 2013-06-25												*
+ * @version 0.46, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabilities> {
@@ -113,12 +114,13 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 	protected GetCapabilities doInBackground(ServerConnection... srvs) {
 		Log.d(TAG, "doInBackground(ServerConnection...) called.");
 		
-		mService.startAnimation(); // Start the animation, showing that a web communicating thread is active
-		
 		mServerConnection = srvs[0]; // Stores the ServerConnection info.
 		
 		/* Try to form an URI from the supplied ServerConnection info. */
-		String uriString = "http://" + srvs[0].toString() + "/wms?service=wms&version=1.1.0&request=GetCapabilities";
+		String uriString = (mServerConnection.getMode() == ServerEditor.SIMPLE_ADDRESS_MODE ?
+				mServerConnection.getSimpleAddress()
+				: "http://" + srvs[0].toString())
+					+ "/wms?service=wms&version=1.1.0&request=GetCapabilities";
 		try {
 			mServerURI = new URI(uriString);
 		} catch (URISyntaxException e) {
@@ -162,18 +164,17 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 			/* Update the database. */
 			mService.setActiveServer(mServerConnection);
 			mService.getSQLhelper().updateData(LocalSQLDBhelper.TABLE_SRV, mServerConnection.getID(), LocalSQLDBhelper.KEY_SRV_ID, new String[] {LocalSQLDBhelper.KEY_SRV_LASTUSE}, new String[] {mServerConnection.getLastUse()});
-			mService.setConnectState(BackboneSvc.CONNECTED);
+			mService.setConnectState(BackboneSvc.CONNECTED, mService.getConnectingRow()); // Set the state to Connected, to the row that was being connected to.
 		}
 		else if(mService.getActiveServer() == null || mService.getActiveServer().getID() == mService.getConnectingRow()) // Connection failed with no connection present or while connecting to the currently active server.
 			mService.clearConnection(true); // Report the failed connection attempt.
 		else { // Connection failed while connecting to a new server, keep old connection.
-			mService.setConnectState(BackboneSvc.CONNECTED);
-			mService.setConnectingRow(mService.getActiveServer().getID());
+			mService.setConnectState(BackboneSvc.CONNECTED, mService.getActiveServer().getID());
 			mService.showAlertDialog(mService.getString(R.string.service_connectionfailed), null);
 		}
 		mService.updateLayoutOnState(); // Update the layout to reflect the results of the GetCapabilities request.
 
-		mService.renewActiveLayer();
+		mService.renewActiveLayer(mService.mInitialRenewLayer);
 		
 		super.onPostExecute(result);
 	}

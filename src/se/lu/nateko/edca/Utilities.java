@@ -51,7 +51,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
  * other classes.															*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.47, 2013-07-25												*
+ * @version 0.50, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public abstract class Utilities {
@@ -75,6 +75,9 @@ public abstract class Utilities {
 	public static final int RETURN_LAST = -1;
 	/** Flag constant for selecting to return all parts of a String that is being split using the dropColons(String) method. */
 	public static final int RETURN_ALL = 0;
+	
+	/** Allowed prefixes for a server address. */
+	public static final String URL_PREFIX = "http://,https://";
 	
 	/**
 	 * Method for checking if a given String contains a Double.
@@ -216,7 +219,7 @@ public abstract class Utilities {
 	 * @return	True if the path is valid, otherwise false.
 	 */
 	public static boolean isValidWorkspace(String input) {
-//		Log.d(TAG, "isValidWorkspace(String) called.");
+//		Log.d(TAG, "isValidWorkspace(" + input + ") called.");
 		Pattern p = Pattern.compile("[^a-z0-9_-]", Pattern.CASE_INSENSITIVE);
 		Matcher m = p.matcher(input);
 		boolean b = m.find();
@@ -225,7 +228,36 @@ public abstract class Utilities {
 			Log.w(TAG, "The workspace string has special characters.");
 			return false;
 		}
-		else return true; // No special characters (valid).		
+		else return true; // No special characters (valid).
+	}
+	
+	/**
+	 * Method that checks that an input address string is not empty "",
+	 * starts with an approved prefix and does not end with a slash "/".
+	 * @param input	Path string to check.
+	 * @return	True if the path is valid, otherwise false.
+	 */
+	public static boolean isValidAddress(String input) {
+//		Log.d(TAG, "isValidAddress(" + input + ") called.");
+		
+		if(input == null)
+			return false; // Null inputs are naturally invalid.
+		else if(input.equalsIgnoreCase(""))
+			return false; // Empty String is an invalid address.
+		else if(input.endsWith("/"))
+			return false; // Cannot end with a slash "/".
+		else {
+			/* Check that the address starts with an approved prefix. */
+			String[] prefixes = URL_PREFIX.split("[,]");
+			boolean prefixOK = false;
+			for(int i=0; i < prefixes.length; i++) {
+				if(input.startsWith(prefixes[i]))
+					prefixOK = true;
+			}
+			if(!prefixOK)
+				return false; // Could not find an approved prefix.
+		}		
+		return true; // No errors found (valid).
 	}
 	
 	/**

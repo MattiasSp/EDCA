@@ -68,7 +68,7 @@ import android.widget.TextView;
  * data for and which ones to store locally.								*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.57, 2013-07-22												*
+ * @version 0.58, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class LayerViewer extends ListActivity {
@@ -134,7 +134,7 @@ public class LayerViewer extends ListActivity {
 		mService.setActiveActivity(LayerViewer.this);
 		findViewById(R.id.layerviewer_webconnection).setAnimation(mService.getAnimationNoQueue());
 		
-		mService.updateLayoutOnState();  
+		mService.updateLayoutOnState();
 	}
 
 	@Override
@@ -196,19 +196,33 @@ public class LayerViewer extends ListActivity {
 			return;
 		}
 		
-		/* Display a toast informing the user if there is no data to upload/store. */
+		/* Display a Toast informing the user if there is no data to upload/store. */
 		if(mService.getActiveLayer().getGeometry().size() < 1) {
 			mService.showToast(R.string.layerviewer_uploadtoast_nodata);
 			return;
 		}
-		
+
+		/* Display a Toast informing the user if there are no valid line geometries to upload. */
+		if(mService.getActiveLayer().getTypeMode() == GeographyLayer.TYPE_LINE
+				&& mService.getActiveLayer().getPointSequence().size() < 1) {
+			mService.showToast(R.string.layerviewer_uploadtoast_nolines);
+			return;
+		}
+
+		/* Display a Toast informing the user if there are no valid line geometries to upload. */
+		if(mService.getActiveLayer().getTypeMode() == GeographyLayer.TYPE_POLYGON
+				&& mService.getActiveLayer().getPointSequence().size() < 1) {
+			mService.showToast(R.string.layerviewer_uploadtoast_nopolygons);
+			return;
+		}
+
 		/*
 		 * Initiate an upload of the data in the currently active layer,
 		 * which, if successful, clears all geometry and attribute data from both
 		 * the active layer and the layer's local storage.
 		 */
 		mService.setUploading(true);
-		setLayout_EnableUploadButton(false);
+		setLayout_UploadButton(false, true);
 		mService.makeSaveOperation(GeoHelper.RWMODE_UPLOAD);
 	}
 	
@@ -268,7 +282,7 @@ public class LayerViewer extends ListActivity {
 				activateLayer(rowId);
 		}
 		else // If there is no active layer to lose geometry, automatically proceed with activation.
-			activateLayer(rowId);		
+			activateLayer(rowId);
 	}
 	
 	/**
@@ -292,10 +306,12 @@ public class LayerViewer extends ListActivity {
 			else if(layerCursor.getInt(2) % LocalSQLDBhelper.LAYER_MODE_STORE == 0) {
 				mService.setActiveLayer(mService.generateGeographyLayer(layerCursor.getString(1)));
 				mService.makeLoadOperation(rowId);
+				setLayout_UploadButton(false, false);
 			}
 			/* Else perform a DescribeFeatureRequest to generate an active layer from information on the geospatial server. */
 			else {
 				mService.makeDescribeFeatureTypeRequest(mService.getActiveServer(), layerCursor.getString(1) , rowId);
+				setLayout_UploadButton(false, false); // Should not upload data while changing the active layer.
 			}
 		}
 	}
@@ -432,13 +448,14 @@ public class LayerViewer extends ListActivity {
 	
 	/**
 	 * Enables or disables the Upload button and sets its text.
-	 * @param enable True to enable.
+	 * @param enable Pass true to enable.
+	 * @param uploading Pass true to set the text to "Uploading..."
 	 */
-	public void setLayout_EnableUploadButton(boolean enable) {
+	public void setLayout_UploadButton(boolean enable, boolean uploading) {
 		Log.d(TAG, "setLayout_EnableUploadButton(" + String.valueOf(enable) + ") called.");
 		Button upload = (Button) findViewById(R.id.layerviewer_button_upload);
 		upload.setEnabled(enable);
-		if(enable)
+		if(!uploading)
 			upload.setText(R.string.layerviewer_button_upload);
 		else
 			upload.setText(R.string.layerviewer_button_uploading);

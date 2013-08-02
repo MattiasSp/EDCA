@@ -38,17 +38,6 @@
 	android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
     
-    <ImageView
-        	android:id="@+id/srvedit_webconnection"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:background="@drawable/webconnection"
-        	android:layout_marginBottom="5dp"
-        	android:layout_marginRight="5dp"
-        	android:layout_alignParentBottom="true"
-        	android:layout_alignParentRight="true"
-        	android:contentDescription="@string/app_webconnection" />
-    
 	<ScrollView
     	android:id="@+id/srvedit_scrollview"
     	android:layout_width="fill_parent"
@@ -66,12 +55,22 @@
             	android:layout_height="wrap_content"            
             	android:text="@string/srvedit_title_edit"
             	android:textAppearance="?android:attr/textAppearanceLarge" />
+        	
+        	<CheckBox
+            android:id="@+id/srvedit_checkbox_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/srvedit_textview_title"
+            android:text="@string/srvedit_content_head_mode"
+            android:checked="true"
+            android:onClick="onClickSimpleAddress"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
         
         	<TableLayout
             	android:id="@+id/srvedit_table_inputform"
             	android:layout_width="fill_parent"
             	android:layout_height="wrap_content"
-            	android:layout_below="@id/srvedit_textview_title"
+            	android:layout_below="@id/srvedit_checkbox_mode"
             	android:stretchColumns="0">
             
             	<TableRow
@@ -101,9 +100,37 @@
                     	android:ems="10"
                     	android:hint="@string/srvedit_edittext_hint_name" />
             	</TableRow>
+            	
+            	<TableRow
+                	android:id="@+id/srvedit_tablerow_simple_head"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+
+                	<TextView
+                    	android:id="@+id/srvedit_textview_simple"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:text="@string/srvedit_content_head_simple"
+                    	android:textAppearance="?android:attr/textAppearanceMedium" />
+            	</TableRow>
             
             	<TableRow
-                	android:id="@+id/tableRow3"
+                	android:id="@+id/srvedit_tablerow_simple_edittext"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content" >
+
+                	<EditText
+                    	android:id="@+id/srvedit_edittext_simple"
+                    	android:layout_width="wrap_content"
+                    	android:layout_height="wrap_content"
+                    	android:layout_span="2"
+                    	android:hint="@string/srvedit_edittext_hint_simple" />
+            
+            	</TableRow>
+            
+            	<TableRow
+                	android:id="@+id/srvedit_tablerow_ipport_head"
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content">
 
@@ -123,7 +150,7 @@
             	</TableRow>
             
             	<TableRow
-	                android:id="@+id/tableRow4"
+	                android:id="@+id/srvedit_tablerow_ipport_edittext"
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content" >
 				
@@ -142,7 +169,7 @@
             	</TableRow>
 
             	<TableRow
-                	android:id="@+id/tableRow5"
+                	android:id="@+id/srvedit_tablerow_path_head"
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content" >
 				
@@ -157,7 +184,7 @@
             	</TableRow>
             
             	<TableRow
-                	android:id="@+id/tableRow6"
+                	android:id="@+id/srvedit_tablerow_path_edittext"
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content" >
 				
@@ -171,7 +198,7 @@
             	</TableRow>
             
             	<TableRow
-                	android:id="@+id/tableRow7"
+                	android:id="@+id/srvedit_tablerow_workspace_head"
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content" >
 				
@@ -186,7 +213,7 @@
             	</TableRow>
             
             	<TableRow
-                	android:id="@+id/tableRow8"
+                	android:id="@+id/srvedit_tablerow_workspace_edittext"
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content" >
 				
@@ -251,4 +278,16 @@
 			</RelativeLayout>
 		</RelativeLayout>
 	</ScrollView>
+	
+	<ImageView
+        android:id="@+id/srvedit_webconnection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/webconnection"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:contentDescription="@string/app_webconnection" />
+	
 </RelativeLayout>

@@ -102,7 +102,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * the active local layer.													*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.55, 2013-07-25												*
+ * @version 0.56, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class MapViewer extends Activity implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener, ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
@@ -172,11 +172,11 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 		/* Restore state if there is one. */
 		if(savedInstanceState != null) {
 			/* Fetch any previously selected points back into mSelected. */
-			long[] array = savedInstanceState.getLongArray("mSelected");
+			long[] array = savedInstanceState.getLongArray(BackboneSvc.PACKAGE_NAME + ".selected");
 			if(array != null)
 				mSelected = new ArrayList<Long>(Arrays.asList(Utilities.longToObjectArray(array)));
 			/* Fetch the flag indicating whether or not to restart requesting Location Updates. */
-			mLocating = savedInstanceState.getBoolean("mLocating");
+			mLocating = savedInstanceState.getBoolean(BackboneSvc.PACKAGE_NAME + ".locating");
 		}
 		
 		setContentView(R.layout.mapviewer);
@@ -295,8 +295,8 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLongArray("mSelected", Utilities.longToPrimitiveArray(mSelected.toArray(new Long[mSelected.size()])));
-        outState.putBoolean("mLocating", mLocating);
+        outState.putLongArray(BackboneSvc.PACKAGE_NAME + ".selected", Utilities.longToPrimitiveArray(mSelected.toArray(new Long[mSelected.size()])));
+        outState.putBoolean(BackboneSvc.PACKAGE_NAME + ".locating", mLocating);
         mMapView.onSaveInstanceState(outState);
     }
 	
@@ -309,19 +309,19 @@ public class MapViewer extends Activity implements OnCameraChangeListener, OnMap
 		if(save) {
 			if(mMap != null) { // If there is a GoogleMap object, store the user's location in the SharedPreferences.
 				getSharedPreferences(getString(R.string.app_name_short) + "_preferences", MODE_PRIVATE).edit()
-						.putFloat("zoom", mMap.getCameraPosition().zoom)
-						.putFloat("latitude", (float) mMap.getCameraPosition().target.latitude) // Approximate position is acceptable, so ignore truncation.
-						.putFloat("longitude", (float) mMap.getCameraPosition().target.longitude) // Approximate position is acceptable, so ignore truncation.
-						.commit(); 
+						.putFloat(BackboneSvc.PACKAGE_NAME + ".zoom", mMap.getCameraPosition().zoom)
+						.putFloat(BackboneSvc.PACKAGE_NAME + ".latitude", (float) mMap.getCameraPosition().target.latitude) // Approximate position is acceptable, so ignore truncation.
+						.putFloat(BackboneSvc.PACKAGE_NAME + ".longitude", (float) mMap.getCameraPosition().target.longitude) // Approximate position is acceptable, so ignore truncation.
+						.commit();
 			}
 		}
 		else {
 			/* Restore the user's last position from the SharedPreferences. */
 			SharedPreferences userpos = getSharedPreferences(getString(R.string.app_name_short) + "_preferences", MODE_PRIVATE);
 			zoomToLocation(new LatLng(
-					(double) userpos.getFloat("latitude", (float) 55.709),
-					(double) userpos.getFloat("longitude", (float) 13.201)),
-					userpos.getFloat("zoom", (float) 3),
+					(double) userpos.getFloat(BackboneSvc.PACKAGE_NAME + ".latitude", (float) 55.709),
+					(double) userpos.getFloat(BackboneSvc.PACKAGE_NAME + ".longitude", (float) 13.201)),
+					userpos.getFloat(BackboneSvc.PACKAGE_NAME + ".zoom", (float) 3),
 					false);
 		}		
 	}

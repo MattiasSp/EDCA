@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -21,7 +20,9 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -63,7 +64,7 @@ import android.widget.ToggleButton;
  * connections. Can also activate the currently displayed connection.		*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.55, 2013-07-25												*
+ * @version 0.66, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class ServerEditor extends Activity {
@@ -89,41 +90,46 @@ public class ServerEditor extends Activity {
         	Log.d(TAG, "onServiceDisconnected(ComponentName) called.");
         }
     };
-	
-    /** EditText view where the user can input the ServerConnection name. */
-    private EditText mNameText;
-    /** EditText view where the user can input the ServerConnection IP. */
-    private EditText mIPText;
-    /** EditText view where the user can input the ServerConnection Port. */
-    private EditText mPortText;
-    /** EditText view where the user can input the ServerConnection path, e.g. "/geoserver". */
-    private EditText mPathText;
-    /** EditText view where the user can input the ServerConnection workspace name on the geospatial server. */
-    private EditText mWorkspaceText;
-    /** TextView displaying the time and date when the ServerConnection was last connected to. */
-    private TextView mLastUsedText;
-    /** Button letting the user save edits or enable editing of the ServerConnection. */
-    private Button mSaveEditButton;
-    /** ToggleButton letting the user connect to or disconnect from the ServerConnection. */
-    private ToggleButton mConnectButton;
+
     /** Whether editing is locked (true) or enabled (false). */
-	private Boolean mEditsLocked;
+	private Boolean mEditsEnabled;
 	/** The row id in the local SQLite database of the currently displayed ServerConnection, or -1 if a new ServerConnection is created. */
     private Long mRowId;
+    /** Flag showing whether or not to use simple address mode, only requiring a single combined address. 0 means exploded address mode, 1 means simple mode. */
+    private int mAddressMode;
+    /** Constant identifying the simple address mode, where the entire server address is entered as a single input String. */
+    public static final int SIMPLE_ADDRESS_MODE = 1;
+    /** Constant identifying the exploded address mode, where the server address has to be entered as separate parts. */
+    public static final int EXPLODED_ADDRESS_MODE = 0;
+    /** String array holding previous input to be rewritten into the EditText boxes. */
+    private String[] mTempText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	Log.d(TAG, "onCreate(Bundle) called.");
         
+        /* Set instance state. Use savedInstanceState if possible, otherwise use
+         * Intent extras. If there is neither use the default (-1, new connection). */
+		Bundle instanceState = savedInstanceState;
+        if(instanceState == null) {
+        	instanceState = getIntent().getExtras();
+        	if(instanceState == null) { // Use defaults.
+        		mRowId = (long) -1;
+        		mEditsEnabled = true;
+        		mAddressMode = SIMPLE_ADDRESS_MODE;
+        	}
+        }
+        if(instanceState != null) { // Get state from Bundle.
+        	mRowId = instanceState.getLong(BackboneSvc.PACKAGE_NAME + ".id", (long) -1);
+        	mEditsEnabled = instanceState.getBoolean(BackboneSvc.PACKAGE_NAME + ".editsenabled", true);
+        	mAddressMode = instanceState.getInt(BackboneSvc.PACKAGE_NAME + ".addressmode", SIMPLE_ADDRESS_MODE);
+        	mTempText = instanceState.getStringArray(BackboneSvc.PACKAGE_NAME + ".text");
+        }
+        Log.v(TAG, "mRowId: " + String.valueOf(getRowId()) + ", mEditsEnabled: " + String.valueOf(mEditsEnabled)+ ", mAddressMode: " + String.valueOf(mAddressMode));        
+
         /* Set the layout and store the relevant resource references. */
         setContentView(R.layout.srvedit);
-        fetchLayoutObjects();
-        
-        /* Get the stuff from the intent. */
-        Intent intent = getIntent();
-		mRowId = (Long) intent.getLongExtra(LocalSQLDBhelper.KEY_SRV_ID, -1);
-		Log.v(TAG, "mRowId: " + String.valueOf(getRowId()));
-		
+
 		super.onCreate(savedInstanceState);
     }
     
@@ -144,85 +150,69 @@ public class ServerEditor extends Activity {
 		Log.d(TAG, "onBound() called.");		
 	    mService.setActiveActivity(ServerEditor.this);
 	    findViewById(R.id.srvedit_webconnection).setAnimation(mService.getAnimationNoQueue());
-	    mService.updateLayoutOnState();
-	    if(getRowId() == -1) {// If mRowId is -1 (if a new connection is to be created): enable the text fields and set mEditsLocked to false.
-	    	((TextView) findViewById(R.id.srvedit_textview_title)).setText(R.string.srvedit_title_create); // Set heading to "Create..."
-	    	enableEdits(true);
-	    	enableConnectButton(false);
-	    }
-	    else if(mService.getConnectState() == BackboneSvc.CONNECTING && getRowId() == mService.getConnectingRow()) {// If the ServerEditor is currently viewing the database being connected to; disable the connect button.
-	    	enableEdits(false);
-	    	enableConnectButton(false);
-	    }
-	    else
-	    	enableEdits(false);
+
+	    /* Setup the layout (fields, buttons etc.). */
+	    updateLayout(mTempText);
 	}
 
 	@Override
 	protected void onPause() {
-		Log.d(TAG, "onPause() called.");
-		
-        saveState();        
+		Log.d(TAG, "onPause() called.");      
 		unbindService(mServiceConnection);
-		
 		super.onPause();
 	}
-
-    /**
-     * Method that displays the information on the selected connection in
-     * the text fields and sets the fields uneditable. The fields will be
-     * editable again when the edit button is pressed.
-     */
-    public void populateFields() {
-        if (getRowId() != -1) {
-            Cursor server = mService.getSQLhelper().fetchData(LocalSQLDBhelper.TABLE_SRV, LocalSQLDBhelper.KEY_SRV_COLUMNS, getRowId(), null, false);
-            startManagingCursor(server);
-            server.moveToFirst();
-            
-            String lastuse = server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_LASTUSE));
-            lastuse = (Utilities.isValidDate(lastuse, Utilities.DATE_LONG)) ? lastuse : getString(R.string.srvedit_content_nolastuse);
-            
-            mLastUsedText.setText(lastuse);
-            mNameText.setText(server.getString(
-            		server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_NAME)));
-            mIPText.setText(server.getString(
-            		server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_IP)));
-            mPortText.setText(server.getString(
-            		server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_PORT)));
-            mPathText.setText(server.getString(
-            		server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_PATH)));
-            mWorkspaceText.setText(server.getString(
-            		server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_WORKSPACE)));
-            
-        }
-        else { // If there is no selected Server Connection, i.e. a new connection is being created, try to fill the EditText boxes with previously entered text.
-        	try {
-        		mLastUsedText.setText(mService.mTempText[0]);
-        		mNameText.setText(mService.mTempText[1]);
-                mIPText.setText(mService.mTempText[2]);
-                mPortText.setText(mService.mTempText[3]);
-                mPathText.setText(mService.mTempText[4]);
-                mWorkspaceText.setText(mService.mTempText[5]);
-        	} catch (NullPointerException e) { Log.v(TAG, "No text stored."); }
-        }
-    }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        saveState();
-        outState.putSerializable(LocalSQLDBhelper.KEY_SRV_ID, getRowId());
+        outState.putLong(BackboneSvc.PACKAGE_NAME + ".id", getRowId());
+        outState.putBoolean(BackboneSvc.PACKAGE_NAME + ".editsenabled", mEditsEnabled);
+        outState.putInt(BackboneSvc.PACKAGE_NAME + ".addressmode", mAddressMode);
+        if ((Long) getRowId() == -1) // If a new ServerConnection was being created;            
+        	/* Store the currently entered information in the outState Bundle
+        	 * so that it will not be lost in case of a sudden interruption. */
+        	outState.putStringArray(BackboneSvc.PACKAGE_NAME + ".temptext", getText()); 
     }
 
     /**
-     * Method called in onPause() or onSaveInstanceState(Bundle) that stores the currently
-     * entered information in a variable on the BackboneSvc so that it will not be lost in case
-     * of a sudden interruption.
+     * Method that displays the information on the selected connection in
+     * the text fields and sets the fields' and buttons' states.
+     * @param text Pass in a String array to fill the EditText boxes with previous input.
      */
-    private void saveState() {
-        if ((Long) getRowId() == -1) {
-        	mService.mTempText = getText();
-        }
+    public void updateLayout(String[] text) {
+    	setAddressMode(mAddressMode); // Hides the fields not required.
+    	enableEdits(mEditsEnabled); // Set the fields to their previous (or the default, enabled) state.
+    	((TextView) findViewById(R.id.srvedit_textview_title)).setText(
+    			(getRowId() == -1) ? R.string.srvedit_title_create : R.string.srvedit_title_edit); // Set heading to "Create..." or "Edit..." depending on whether a new ServerConnection is being created or not.
+
+    	/* Set the text in the EditText boxes. */
+    	if(text != null) // Use previous input or intent extras if there is such (else leave fields blank):
+	    	setText(text);
+
+    	/* Set the button states. */
+    	if(mService.getConnectState() == BackboneSvc.CONNECTING) { // If a server is currently being connected to:
+    		if(getRowId() == mService.getConnectingRow()) // If the ServerEditor is viewing the server that is being connected to:
+    			setButtonState(BackboneSvc.CONNECTING);
+    		else // If the ServerEditor is viewing another server.
+    			setButtonState(BackboneSvc.DISCONNECTED);
+    	}
+    	else if(mService.getActiveServer() == null) // There is no active server to be connected to.
+	    	setButtonState(BackboneSvc.DISCONNECTED);
+    	else if(getRowId() == mService.getActiveServer().getID()) // The ServerConnection that is the active server is being edited:
+			setButtonState(BackboneSvc.CONNECTED);
+		else // If there is no connection either present or underway related to this server.
+			setButtonState(BackboneSvc.DISCONNECTED);
+    }
+
+    /**
+     * Listener method which is called when the Simple Address Mode
+     * CheckBox is clicked. Hides the non-required fields and shows
+     * the ones required for the selected mode.
+     * @param view The View object that was clicked.
+     */
+    public void onClickSimpleAddress(View view) {
+    	mAddressMode = (mAddressMode == SIMPLE_ADDRESS_MODE) ? EXPLODED_ADDRESS_MODE : SIMPLE_ADDRESS_MODE;
+    	setAddressMode(mAddressMode);
     }
     
     /**
@@ -234,17 +224,17 @@ public class ServerEditor extends Activity {
     public void onClickSaveEdit(View view) {
     	Log.d(TAG, "onClickSaveEdit(View) called.");
     	
-    	if(mEditsLocked == true) {// If editing is locked, i.e. the "Edit" button was pressed: enable edits and disconnect if this is the active server.
-    		try { // If the currently active ServerConnection is selected, change the Connect button to DISCONNECTED.
-    			if(mService.getActiveServer().getID() == getRowId())
+    	if(mEditsEnabled == false) { // If editing was locked, i.e. the "Edit" button was pressed: enable edits and disconnect if this is the active server.
+    		if(mService.getActiveServer() != null) {// There is an active ServerConnection:
+    			if(mService.getActiveServer().getID() == getRowId()) { // If the currently active ServerConnection is being edited, disconnect it.
     				Log.i(TAG, "Editing the active server connection. Disconnecting...");
-        			mService.setActiveServer(null);
-        			setConnectButtonState(BackboneSvc.DISCONNECTED);
-        			mService.setConnectingRow((long) 0);
-        			mService.setConnectState(BackboneSvc.DISCONNECTED);
-    		} catch (NullPointerException e) { Log.v(TAG, e.toString() + ": No active server."); }
-    		enableEdits(true);
-    		enableConnectButton(false);
+        			mService.clearConnection(false);
+    			}
+    		}
+    		else
+    			Log.v(TAG, "No active server.");
+    		enableEdits(true); // Either way, enable editing.
+    		((ToggleButton) findViewById(R.id.srvedit_button_connect)).setEnabled(false); // Disable the connect button while editing.
     	}
     	else // If editing was enabled, i.e. the "Save" button was pressed:
     	{
@@ -258,16 +248,17 @@ public class ServerEditor extends Activity {
     					{
         					LocalSQLDBhelper.KEY_SRV_LASTUSE,
     						LocalSQLDBhelper.KEY_SRV_NAME,
+    						LocalSQLDBhelper.KEY_SRV_SIMPLE,
     						LocalSQLDBhelper.KEY_SRV_IP,
     						LocalSQLDBhelper.KEY_SRV_PORT,
     						LocalSQLDBhelper.KEY_SRV_PATH,
-    						LocalSQLDBhelper.KEY_SRV_WORKSPACE
+    						LocalSQLDBhelper.KEY_SRV_WORKSPACE,
+    						LocalSQLDBhelper.KEY_SRV_MODE
     					}
-    					, new String[] { text[0], text[1], text[2], text[3], text[4], text[5] });
+    					, new String[] { text[0], text[1], text[2], text[3], text[4], text[5], text[6], String.valueOf(mAddressMode) });
         		if (id > 0)
         		{
                     mRowId = id;
-                    mService.mTempText = null;
                     Log.v(TAG, "ServerConnection stored in the local SQLite database; mRowId: " + String.valueOf(getRowId()));
         		}
         	}
@@ -275,12 +266,12 @@ public class ServerEditor extends Activity {
         	else {
         		// Update the server connection row in the local SQLite database.
         		mService.getSQLhelper().updateData(LocalSQLDBhelper.TABLE_SRV, getRowId(), LocalSQLDBhelper.KEY_SRV_ID,
-        				new String[] { LocalSQLDBhelper.KEY_SRV_NAME, LocalSQLDBhelper.KEY_SRV_IP, LocalSQLDBhelper.KEY_SRV_PORT, LocalSQLDBhelper.KEY_SRV_PATH, LocalSQLDBhelper.KEY_SRV_WORKSPACE },
-        				new String[] { text[1], text[2], text[3], text[4], text[5] });
+        				new String[] { LocalSQLDBhelper.KEY_SRV_NAME, LocalSQLDBhelper.KEY_SRV_SIMPLE, LocalSQLDBhelper.KEY_SRV_IP, LocalSQLDBhelper.KEY_SRV_PORT, LocalSQLDBhelper.KEY_SRV_PATH, LocalSQLDBhelper.KEY_SRV_WORKSPACE, LocalSQLDBhelper.KEY_SRV_MODE },
+        				new String[] { text[1], text[2], text[3], text[4], text[5], text[6], String.valueOf(mAddressMode) });
         		Log.v(TAG, "ServerConnection (rowId: " + String.valueOf(getRowId()) + ") in the local SQLite database was updated.");
         	}
-        	enableConnectButton(true);
-        	enableEdits(false);
+        	enableEdits(false); // Disable edits either way.
+        	((ToggleButton) findViewById(R.id.srvedit_button_connect)).setEnabled(true); // Enable the connect button.
     	}
     }
     
@@ -290,7 +281,7 @@ public class ServerEditor extends Activity {
      * @param view The view that initiated the call.
      */
     public void onClickConnect(View view) {
-    	if(!mConnectButton.isChecked()) {
+    	if(!((ToggleButton) findViewById(R.id.srvedit_button_connect)).isChecked()) {
     		Log.d(TAG, "onClickConnect(View) called. Deactivating...");
     		mService.clearConnection(false);
     	}
@@ -303,7 +294,7 @@ public class ServerEditor extends Activity {
     				/* Make a GetCapabilities request. */
     	        	String[] text  = getText();
     	        	String currentDate = Utilities.DATE_LONG.format(new Date());    		
-    	    		mService.makeGetCapabilitiesRequest(new ServerConnection(getRowId(), currentDate, text[1], text[2], text[3], text[4], text[5]));
+    	    		mService.makeGetCapabilitiesRequest(new ServerConnection(getRowId(), currentDate, text[1], text[2], text[3], text[4], text[5], text[6], mAddressMode));
     			}
     			else
     				noNetwork(); // Report that the network is unavailable.    				
@@ -315,60 +306,58 @@ public class ServerEditor extends Activity {
     }
     
     /**
-     * Method for enabling or disabling use of the text fields.
+     * Method for enabling or disabling use of the text fields
+     * and the simple address CheckBox.
      * @param enable The state to set the text fields and the button to.
      */
     public void enableEdits(boolean enable) {
     	Log.d(TAG, "enableEdits(" + String.valueOf(enable) + ") called.");
 
-        mNameText.setEnabled(enable);
-        mIPText.setEnabled(enable);
-        mPortText.setEnabled(enable);
-        mPathText.setEnabled(enable);
-        mWorkspaceText.setEnabled(enable);
+    	((CheckBox) findViewById(R.id.srvedit_checkbox_mode)).setEnabled(enable);
+        ((EditText) findViewById(R.id.srvedit_edittext_name)).setEnabled(enable);
+        ((EditText) findViewById(R.id.srvedit_edittext_simple)).setEnabled(enable);
+        ((EditText) findViewById(R.id.srvedit_edittext_ip)).setEnabled(enable);
+        ((EditText) findViewById(R.id.srvedit_edittext_port)).setEnabled(enable);
+        ((EditText) findViewById(R.id.srvedit_edittext_path)).setEnabled(enable);
+        ((EditText) findViewById(R.id.srvedit_edittext_workspace)).setEnabled(enable);
         
-        mEditsLocked = !enable;
+        mEditsEnabled = enable; // Update the flag to record the enabled state.
         
+        Button saveEditButton = (Button) findViewById(R.id.srvedit_button_saveedit);
         if(enable)
-        	mSaveEditButton.setText(R.string.srvedit_button_save);
+        	saveEditButton.setText(R.string.srvedit_button_save);
         else
-        	mSaveEditButton.setText(R.string.srvedit_button_edit);
+        	saveEditButton.setText(R.string.srvedit_button_edit);
     }
     
     /**
-     * Enables or disables the connect button according to the parameter.
-     * @param enable True to enable the connect button.
-     */
-    public void enableConnectButton(boolean enable) {
-    	Log.d(TAG, "enableConnectButton(" + String.valueOf(enable) + ") called.");
-    	mConnectButton.setEnabled(enable);
-    }
-    
-    /**
-	 * Method that changes the state of the connect button.
+	 * Method that changes the state of the Save/Edit and Connect buttons.
 	 * Pass in 0 for "Disconnected", 1 for "Connected" and 2 for "Connecting".
-	 * @param state The state to set the button to.
+	 * @param state The state to set the Connect Button to.
 	 */
-	public void setConnectButtonState(int state) {
+	public void setButtonState(int state) {
 //		Log.d(TAG, "setConnectButtonState(state=" + String.valueOf(state) + ") called.");
+
+		ToggleButton connectButton = (ToggleButton) findViewById(R.id.srvedit_button_connect);
+		Button saveEditButton = (Button) findViewById(R.id.srvedit_button_saveedit);
 		switch(state) {
 			case BackboneSvc.DISCONNECTED:
-				mConnectButton.setChecked(false);
-				enableConnectButton(true);
-				mSaveEditButton.setEnabled(true);
+				connectButton.setChecked(false);
+				connectButton.setEnabled((mEditsEnabled || mService.getConnectState() == BackboneSvc.CONNECTING) ? false : true); // Don't enable the connect button while editing or while a connection attempt is being made.
+				saveEditButton.setEnabled(true);
 				Log.i(TAG, "Connect button set to DISCONNECTED.");
 				break;
 			case BackboneSvc.CONNECTED:
-				mConnectButton.setChecked(true);
-				enableConnectButton(true);
-				mSaveEditButton.setEnabled(true);
+				connectButton.setChecked(true);
+				connectButton.setEnabled((mEditsEnabled) ? false : true); // Don't enable the connect button while editing.
+				saveEditButton.setEnabled(true);
 				Log.i(TAG, "Connect button set to CONNECTED.");
 				break;
 			case BackboneSvc.CONNECTING:    		
-				mConnectButton.setChecked(false);
-				mConnectButton.setText(getString(R.string.srvedit_button_connecting));
-				enableConnectButton(false);
-				mSaveEditButton.setEnabled(false);
+				connectButton.setChecked(false);
+				connectButton.setText(getString(R.string.srvedit_button_connecting));
+				connectButton.setEnabled(false);
+				saveEditButton.setEnabled(false);
 				Log.i(TAG, "Connect button set to CONNECTING.");
 				break;
 			default:
@@ -376,39 +365,71 @@ public class ServerEditor extends Activity {
 				break;
 		}
 	}
-
+	
 	/**
-     * Method for finding the layout objects in the resources and
-     * storing their references as instance variables.
-     */
-    private void fetchLayoutObjects() {
-//		Log.d(TAG, "fetchLayoutObjects() called.");
-        mSaveEditButton = (Button) findViewById(R.id.srvedit_button_saveedit);
-        mConnectButton = (ToggleButton) findViewById(R.id.srvedit_button_connect);
-        mNameText = (EditText) findViewById(R.id.srvedit_edittext_name);
-        mIPText = (EditText) findViewById(R.id.srvedit_edittext_ip);
-        mPortText = (EditText) findViewById(R.id.srvedit_edittext_port);
-        mPathText = (EditText) findViewById(R.id.srvedit_edittext_path);
-        mWorkspaceText = (EditText) findViewById(R.id.srvedit_edittext_workspace);
-        mLastUsedText = (TextView) findViewById(R.id.srvedit_textview_lastused_content);
-    }
+	 * Hides or shows the address fields to show simple
+	 * or exploded address input mode.
+	 * @param mode Pass 1 to show the simple address mode or 0 to show the exploded address mode.
+	 */
+	private void setAddressMode(int mode) {
+		((CheckBox) findViewById(R.id.srvedit_checkbox_mode)).setChecked((mode == SIMPLE_ADDRESS_MODE));
+		if((mode == SIMPLE_ADDRESS_MODE)) {
+			((TableRow) findViewById(R.id.srvedit_tablerow_simple_head)).setVisibility(View.VISIBLE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_simple_edittext)).setVisibility(View.VISIBLE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_head)).setVisibility(View.GONE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_edittext)).setVisibility(View.GONE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_path_head)).setVisibility(View.GONE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_path_edittext)).setVisibility(View.GONE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_head)).setVisibility(View.GONE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_edittext)).setVisibility(View.GONE);
+		}
+		else {
+			((TableRow) findViewById(R.id.srvedit_tablerow_simple_head)).setVisibility(View.GONE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_simple_edittext)).setVisibility(View.GONE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_head)).setVisibility(View.VISIBLE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_edittext)).setVisibility(View.VISIBLE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_path_head)).setVisibility(View.VISIBLE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_path_edittext)).setVisibility(View.VISIBLE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_head)).setVisibility(View.VISIBLE);
+			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_edittext)).setVisibility(View.VISIBLE);
+		}
+	}
     
     /**
      * Get method for the text written in the EditText boxes by the user.
-     * @return A three field String array with ServerConnection name, ip, port, path, workspace and date of last use.
+     * @return A seven field String array with ServerConnection name, simple address, ip, port, path, workspace and date of last use.
      */
     private String[] getText() {
 //    	Log.v(TAG, "mLastUsedText: " + mLastUsedText.getText().toString());
     	String[] text = new String[] {
-    			mLastUsedText.getText().toString(),
-    			mNameText.getText().toString(),
-    	        mIPText.getText().toString(),
-    	        mPortText.getText().toString(),
-    	        mPathText.getText().toString(),
-    	        mWorkspaceText.getText().toString()
+    			((TextView) findViewById(R.id.srvedit_textview_lastused_content)).getText().toString(),
+    			((EditText) findViewById(R.id.srvedit_edittext_name)).getText().toString(),
+    			((EditText) findViewById(R.id.srvedit_edittext_simple)).getText().toString(),
+    	        ((EditText) findViewById(R.id.srvedit_edittext_ip)).getText().toString(),
+    	        ((EditText) findViewById(R.id.srvedit_edittext_port)).getText().toString(),
+    	        ((EditText) findViewById(R.id.srvedit_edittext_path)).getText().toString(),
+    	        ((EditText) findViewById(R.id.srvedit_edittext_workspace)).getText().toString()
     	};
-    	Log.d(TAG, "getText() called: " + text[0] + "; " + text[1] + "; " + text[2] + "; " + text[3] + "; " + text[4] + "; " + text[5]);
+    	Log.d(TAG, "getText() called: " + text[0] + "; " + text[1] + "; " + text[2] + "; " + text[3] + "; " + text[4] + "; " + text[5] + "; " + text[6]);
     	return text;
+    }
+
+    /**
+     * Set method for the texts written in the EditText boxes by the user.
+     * @param text A seven field String array with ServerConnection name, simple address, ip, port, path, workspace and date of last use.
+     */
+    private void setText(String[] text) {
+//    	Log.v(TAG, "setText(String[] == null: " + String.valueOf(text == null) + ")");
+    	if(text != null) {
+    		((TextView) findViewById(R.id.srvedit_textview_lastused_content)).setText(text[0]);
+    		((EditText) findViewById(R.id.srvedit_edittext_name)).setText(text[1]);
+    		((EditText) findViewById(R.id.srvedit_edittext_simple)).setText(text[2]);
+    		((EditText) findViewById(R.id.srvedit_edittext_ip)).setText(text[3]);
+    		((EditText) findViewById(R.id.srvedit_edittext_port)).setText(text[4]);
+    		((EditText) findViewById(R.id.srvedit_edittext_path)).setText(text[5]);
+    		((EditText) findViewById(R.id.srvedit_edittext_workspace)).setText(text[6]);
+    		Log.d(TAG, "setText() called: " + text[0] + "; " + text[1] + "; " + text[2] + "; " + text[3] + "; " + text[4] + "; " + text[5] + "; " + text[6]);
+    	}
     }
     
     /**
@@ -425,12 +446,13 @@ public class ServerEditor extends Activity {
     	 * a number corresponding to the field that is incorrect, or 0 if they are
     	 * all correctly input.
     	 */
-    	int switcher = 	(text[1].contentEquals("")) ?										1
-    					: (!Utilities.isIP(text[2])) ?										2
-    							: (Utilities.isInteger(text[3])[0] == 0) ?					3
-    									: (!Utilities.isValidPath(text[4]))	?				4
-    											: (!Utilities.isValidWorkspace(text[5])) ?	5
-    													:									0;
+    	int switcher = 	(text[1].contentEquals("")) ?																1
+    			: (mAddressMode == SIMPLE_ADDRESS_MODE && !Utilities.isValidAddress(text[2])) ?						2
+    				: (mAddressMode == EXPLODED_ADDRESS_MODE && !Utilities.isIP(text[3])) ?							3
+    					: (mAddressMode == EXPLODED_ADDRESS_MODE && Utilities.isInteger(text[4])[0] == 0) ?			4
+    						: (mAddressMode == EXPLODED_ADDRESS_MODE && !Utilities.isValidPath(text[5])) ?			5
+    							: (mAddressMode == EXPLODED_ADDRESS_MODE && !Utilities.isValidWorkspace(text[6])) ?	6
+    								:																				0;
     	
     	/* If a field was filled incorrectly, display a warning and let the user return. */
     	if(switcher != 0) {
@@ -440,15 +462,18 @@ public class ServerEditor extends Activity {
     			mService.showAlertDialog(getString(R.string.srvedit_alert_text_needname), null);
     			break;
     		case 2:
-    			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badip), null);
+    			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badsimple) + Utilities.URL_PREFIX + ".", null);
     			break;
     		case 3:
-    			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badport), null);
+    			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badip), null);
     			break;
     		case 4:
-    			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badpath), null);
+    			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badport), null);
     			break;
     		case 5:
+    			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badpath), null);
+    			break;
+    		case 6:
     			mService.showAlertDialog(getString(R.string.srvedit_alert_text_badworkspace), null);
     			break;
     		default:
@@ -476,7 +501,7 @@ public class ServerEditor extends Activity {
      * and send the user to the system's Wireless Settings.
      */
     private void noNetwork() {
-    	setConnectButtonState(BackboneSvc.DISCONNECTED); // Without a network connection it can't be connected.
+    	setButtonState(BackboneSvc.DISCONNECTED); // Without a network connection it can't be connected.
     	/* Create an AlertDialog to inform the user, which upon pressing "ok"
     	 * will send the user the the system's Wireless Settings. */
     	AlertDialog alertDialog = new AlertDialog.Builder(this).create();

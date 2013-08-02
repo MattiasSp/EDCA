@@ -38,11 +38,13 @@ import android.util.Log;
  * 																			*
  ****************************************************************************
  * ServerConnection object class, instantiated and managed by a BackboneSvc	*
- * object. Carries e.g. strings with IP address, port and path to a			*
- * geospatial server as instance variables.									*
+ * object. Carries all information about a geospatial server required to	*
+ * connect to it as instance variables. Depending on the ServerConnection	*
+ * mode, this can include either the full address (simple address mode) or	*
+ * the IP, port, path and workspace name for the server.					*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.45, 2012-09-26												*
+ * @version 0.51, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class ServerConnection {
@@ -54,14 +56,18 @@ public class ServerConnection {
 	private String mLastUse;
 	/** The name of the ServerConnection. */
 	private String mName;
-	/** The IP address to the server this ServerConnection connects to. */
+	/** The full address to the server this ServerConnection connects to. Used with simple address mode. */
+	private String mSimpleAddress;
+	/** The IP address to the server this ServerConnection connects to. Used with exploded address mode. */
 	private String mIPaddress;
-	/** The port number to the server this ServerConnection connects to. */
+	/** The port number to the server this ServerConnection connects to. Used with exploded address mode. */
 	private String mPort;
-	/** The path to the geospatial server. */
+	/** The path to the geospatial server. Used with exploded address mode. */
 	private String mPath;
-	/** The workspace to use on the geospatial server. */
+	/** The workspace to use on the geospatial server. Used with exploded address mode. */
 	private String mWorkspace;
+	/** The address mode. 1 means simple address mode, where only the full address as a single input String is required. 0 means exploded mode, requiring IP, port, path and workspace name as separate input. */
+	private int mMode;
 	
 	/**
 	 * Constructor for ServerConnection objects, taking IP and port Strings
@@ -70,22 +76,26 @@ public class ServerConnection {
 	 * @param _id The ID of the ServerConnection info from the local SQLite Database.
 	 * @param lastuse The last time this ServerConnection was used to access the server. 
 	 * @param name The user specified name of the connection.
+	 * @param simple The full (simple address mode) address to the geospatial server.
 	 * @param ip IP address to assign the ServerConnection object.
 	 * @param port Port number to assign the ServerConnection object.
 	 * @param path Logical path to the geospatial server to assign the ServerConnection object.
 	 * @param workspace Optional workspace on the geospatial server.
+	 * @param mode Whether to use simple (1) or exploded (0) address mode.
 	 */
-	public ServerConnection(Long _id, String lastuse, String name, String ip, String port, String path, String workspace) {
-		Log.d(TAG, "ServerConnection(" + String.valueOf(_id) + ", " + lastuse + ", " + name + ", " + ip + ", " + port + ", " + path + ", " + workspace + ") called.");
+	public ServerConnection(Long _id, String lastuse, String name, String simple, String ip, String port, String path, String workspace, int mode) {
+		Log.d(TAG, "ServerConnection(" + String.valueOf(_id) + ", " + lastuse + ", " + name + ", " + simple + ", " + ip + ", " + port + ", " + path + ", " + workspace + ", " + String.valueOf(mode) + ") called.");
 		
 		/* Set the member fields */
 		setID(_id);
 		setLastUse(lastuse);
 		setName(name);
+		mSimpleAddress = simple;
 		setIP(ip);
 		setPort(port);
 		setPath(path);
 		setWorkspace(workspace);
+		mMode = mode;
 	}
 	
 	/**
@@ -239,6 +249,47 @@ public class ServerConnection {
 			if(!getWorkspace().equalsIgnoreCase(""))
 				fullAddress = fullAddress + "/" + getWorkspace();
 		return fullAddress;
+	}
+
+	/**
+	 * Get method for the full server address used in simple address mode.
+	 * @return The full address to the geospatial server.
+	 */
+	public String getSimpleAddress() {
+		return mSimpleAddress;
+	}
+
+	/**
+	 * Set method for the full server address used in simple address mode.
+	 * @param simpleAddress The full address to the geospatial server.
+	 * @return Returns true if the set call was successful, else: false.
+	 */
+	public boolean setSimpleAddress(String simpleAddress) {
+		if(Utilities.isValidAddress(simpleAddress)) {
+			mSimpleAddress = simpleAddress;
+			return true;
+		}
+		else return false;
+	}
+
+	/**
+	 * Get method for the address mode of this ServerConnection.
+	 * 1 means simple address mode and 0 means exploded mode.
+	 * @return The address mode of this ServerConnection.
+	 */
+	public int getMode() {
+		return mMode;
+	}
+
+	/**
+	 * Set method for the address mode of this ServerConnection.
+	 * Pass 1 for simple mode, requiring the full server address
+	 * as a single string, or pass 0 for exploded mode where the
+	 * address need to be entered as separate parts.
+	 * @param mode The address mode to set for this ServerConnection.
+	 */
+	public void setMode(int mode) {
+		mMode = mode;
 	}
 	
 /*	/**

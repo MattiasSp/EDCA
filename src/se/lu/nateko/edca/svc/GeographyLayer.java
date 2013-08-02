@@ -52,7 +52,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * the actual data, both geometry and attributes.							*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.51, 2013-07-24												*
+ * @version 0.53, 2013-08-01												*
  * 																			*
  ****************************************************************************/
 public class GeographyLayer {
@@ -204,9 +204,19 @@ public class GeographyLayer {
 	
 	/**
 	 * Clears all geometry and attributes from the GeographyLayer.
+	 * @param clearAll Whether or not to also clear points that are not in any sequences.
 	 */
-	public void clearGeometry() {
-		getGeometry().clear();
+	public void clearGeometry(boolean clearAll) {
+		/* Don't clear points not included in sequences for Line or Polygon layers,
+		 * unless clearing all geometries is specifically set. */
+		if((getTypeMode() == TYPE_LINE || getTypeMode() == TYPE_POLYGON) && !clearAll) {
+			for(long point : getGeometry().keySet()) {
+				if(pointInSequence(point) != -1)
+					getGeometry().remove(point); // Remove the point because it's used in a point sequence.
+			}
+		}
+		else
+			getGeometry().clear();
 		getPointSequence().clear();
 		getAttributes().clear();
 		mHasGeometry = false;
