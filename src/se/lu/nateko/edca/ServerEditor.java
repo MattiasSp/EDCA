@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -64,7 +65,7 @@ import android.widget.ToggleButton;
  * connections. Can also activate the currently displayed connection.		*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.66, 2013-08-01												*
+ * @version 0.67, 2013-08-03												*
  * 																			*
  ****************************************************************************/
 public class ServerEditor extends Activity {
@@ -188,6 +189,15 @@ public class ServerEditor extends Activity {
     	/* Set the text in the EditText boxes. */
     	if(text != null) // Use previous input or intent extras if there is such (else leave fields blank):
 	    	setText(text);
+    	else if(mRowId != -1) { // If looking at a stored ServerConnection and no text was provided, update the lastuse text.
+    		Cursor server = mService.getSQLhelper().fetchData(LocalSQLDBhelper.TABLE_SRV, LocalSQLDBhelper.KEY_SRV_COLUMNS, getRowId(), null, false);
+    		if(server.moveToFirst()) {
+    			String lastuse = server.getString(server.getColumnIndexOrThrow(LocalSQLDBhelper.KEY_SRV_LASTUSE));
+                lastuse = (Utilities.isValidDate(lastuse, Utilities.DATE_LONG)) ? lastuse : getString(R.string.srvedit_content_nolastuse);                
+                ((TextView) findViewById(R.id.srvedit_textview_lastused_content)).setText(lastuse);
+    		}
+    		server.close();
+    	}
 
     	/* Set the button states. */
     	if(mService.getConnectState() == BackboneSvc.CONNECTING) { // If a server is currently being connected to:

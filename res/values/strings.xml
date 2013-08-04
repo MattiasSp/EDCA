@@ -37,7 +37,7 @@
     <string name="app_name">Emergency Data Collector for Android&#8482;</string>
     <string name="app_name_short">EDCA</string>
     <string name="app_author">Mattias Spångmyr</string>
-    <string name="app_versiondate">2013–08–01</string>
+    <string name="app_versiondate">2013–08–03</string>
     <string name="app_contact">edca.contact@gmail.com</string>
     <string name="app_empty">&#8211;</string>
     <string name="app_webconnection">Indicates if the application is accessing or processing web content.</string>
@@ -86,7 +86,7 @@
     <string name="srvedit_button_connected">Connected</string>
     <string name="srvedit_button_connecting">Connecting&#8230;</string>
     <string name="srvedit_edittext_hint_name">Enter a connection name</string>
-    <string name="srvedit_edittext_hint_simple">e.g. \&quot;www.domain.org/server/workspace\&quot;</string>
+    <string name="srvedit_edittext_hint_simple">e.g. \&quot;http://www.domain.org/server/workspace\&quot;</string>
     <string name="srvedit_edittext_hint_ip">###.###.###.###</string>
     <string name="srvedit_edittext_hint_port">#####</string>
     <string name="srvedit_edittext_hint_path">&quot;/path/to/server (don't end with /)&quot;</string>
@@ -147,7 +147,7 @@
     <string name="mapviewer_selectsequence_taptoselect">Forming sequence, tap points to select.</string>
     <string name="mapviewer_addposition_gettinglocation">Locating&#8230; This may take a while.</string>
     <string name="mapviewer_addposition_stopped">Stopped searching for location.</string>
-    <string name="mapviewer_addposition_gpsmissing">GPS is disabled.</string>
+    <string name="mapviewer_addposition_gpsmissing">Enable the GPS</string>
     <string name="mapviewer_addposition_locationmsg_acc">Accuracy (m, &#177;&#963;):</string>
     <string name="mapviewer_addposition_locationmsg_tap">(tap to save)</string>
     <string name="mapviewer_addpositiondialog_title">Confirm Position</string>

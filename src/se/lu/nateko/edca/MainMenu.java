@@ -1,8 +1,5 @@
 package se.lu.nateko.edca;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-
 import se.lu.nateko.edca.BackboneSvc.SvcAccessor;
 import se.lu.nateko.edca.svc.LocalSQLDBhelper;
 import android.app.Activity;
@@ -17,6 +14,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 /********************************COPYRIGHT***********************************
  * This file is part of the Emergency Data Collector for Android™ (EDCA).	*
@@ -186,6 +186,7 @@ public class MainMenu extends Activity {
     /** Called when clicking the about-button. */
     public void onClickAbout(View aboutButtonView) {
     	Log.d(TAG, "onClickAbout(View) called.");
+
     	Intent intentAbout = new Intent(MainMenu.this, About.class);
         startActivity(intentAbout);
     }

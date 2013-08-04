@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.lu.nateko.edca"
     android:versionCode="1"
-    android:versionName="0.95"
+    android:versionName="0.96"
     android:installLocation="auto" >
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"/>
@@ -22,7 +22,7 @@
         
         <meta-data
         	android:name="com.google.android.maps.v2.API_KEY"
-        	android:value="Put your Google Maps API v2 API Key here."/>
+        	android:value="Put your Google Maps Android API v2 API Key here."/>
         
         <activity
             android:name="se.lu.nateko.edca.MainMenu"

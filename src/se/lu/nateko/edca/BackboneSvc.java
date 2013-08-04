@@ -196,7 +196,7 @@ public class BackboneSvc extends Service {
 	public void setActiveServer(ServerConnection srv) {
 //		Log.d(TAG, "setActiveServer(ServerConnection) called.");
 		try {
-			Log.i(TAG, "New active server '" + srv.getName() + "': " + srv.toString());
+			Log.i(TAG, "New active server '" + srv.getName() + "': " + ((srv.getMode() == 0) ? srv.toString() : srv.getSimpleAddress()));
 			mActiveServer = srv;
 		} catch (NullPointerException e) {
 			Log.w(TAG, e.toString());

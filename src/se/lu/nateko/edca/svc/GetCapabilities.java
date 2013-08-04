@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -79,7 +78,7 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 	/** The error tag for this ASyncTask. */
 	public static final String TAG = "GetCapabilities";
 	/** Constant defining the wait time before the GetCapabilities request times out. */
-	private static final int TIME_OUT = 15;
+	private static final int TIME_OUT = 30;
 	/** The server http address and request. */
 	private URI mServerURI;
 	/** The ServerConnection that the request is being made to. */
@@ -198,9 +197,11 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 		    response = mHttpClient.execute(httpGetMethod);
 		    Log.i(TAG, "GetCapabilities request made to server: " + httpGetMethod.getURI().toString());
 			
+//		    Log.v(TAG, "Length: " + response.getEntity().getContentLength() + ", Type: " + response.getEntity().getContentType() + ", Encoding: " + response.getEntity().getContentEncoding());
+
 		    InputStream xmlStream = response.getEntity().getContent();
 		    InputStreamReader reader = new InputStreamReader(xmlStream, "UTF-8");
-		    BufferedReader buffReader = new BufferedReader(reader, 8192);
+		    BufferedReader buffReader = new BufferedReader(reader, 4096);
 		    
 		    /* Remove all non-stored and inactive layers from the table to make room for the new result of the GetCapabilities XML parsing. */
 		    mService.clearRemoteLayers();
@@ -234,9 +235,9 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 	 * and options in the local SQLite database.
 	 * @param xmlResponse A reader wrapped around an InputStream containing the XML response from a GetCapabilities request.
 	 */
-	protected boolean parseXMLResponse(Reader xmlResponse) {
+	protected boolean parseXMLResponse(BufferedReader xmlResponse) {
 		Log.d(TAG, "parseXMLResponse(Reader) called.");
-		
+
 		try {
 			SAXParserFactory spfactory = SAXParserFactory.newInstance(); // Make a SAXParser factory.
 			spfactory.setValidating(false); // Tell the factory not to make validating parsers.
@@ -248,7 +249,7 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 			InputSource source = new InputSource(xmlResponse); // Make an InputSource from the XML input to give to the reader.
 		    xmlReader.parse(source); // Start parsing the XML.
 		} catch (Exception e) {
-			Log.e(TAG, e.toString());
+			Log.e(TAG, "XML parsing error: " + e.toString() + " - " + e.getMessage());
 			return false;
 		}
 		return true;
@@ -314,7 +315,7 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-//			Log.d(TAG, "startElement(String, String, String, Attributes) called.");
+//			Log.d(TAG, "startElement(String, localName=" + localName + ", String, Attributes) called.");
 			mElementLevel++; // New element entered: the level in increased by one.
 			
 			/* Record relevant element names as integer mappings. */
@@ -409,14 +410,14 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 					break;
 			}
 			
-			mElementLevel--; // An element was left, the level is decreased by one. 
-			
+			mElementLevel--; // An element was left, the level is decreased by one.
+
 			super.endElement(uri, localName, qName);
 		}
 
 		@Override
 		public void endDocument() throws SAXException {
-//			Log.d(TAG, "endDocument() called: Finished examining layer attributes.");
+			Log.d(TAG, "endDocument() called: Finished examining server capabilities.");
 			if(mConflict[1]) // If any layer was not added because its name was already stored locally, notify the user.
 				mService.showAlertDialog(mService.getString(R.string.service_layerconflict), null);
 			if(!mHasCapabilitiesElements)

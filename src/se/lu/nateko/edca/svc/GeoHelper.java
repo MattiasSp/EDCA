@@ -99,7 +99,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * handles uploading of a layer's data to its corresponding server layer.	*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.54, 2013-08-01												*
+ * @version 0.55, 2013-08-03												*
  * 																			*
  ****************************************************************************/
 public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
@@ -249,7 +249,8 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 				Cursor modeCursor = mService.getSQLhelper().fetchData(LocalSQLDBhelper.TABLE_LAYER, LocalSQLDBhelper.KEY_LAYER_COLUMNS, LocalSQLDBhelper.ALL_RECORDS, LocalSQLDBhelper.KEY_LAYER_NAME + " = " + "\"" + mGeoLayer.getName() + "\"", false);
 				mService.getActiveActivity().startManagingCursor(modeCursor);
 				if(modeCursor.moveToFirst()) {
-					mService.getSQLhelper().updateData(LocalSQLDBhelper.TABLE_LAYER, modeCursor.getLong(0), LocalSQLDBhelper.KEY_LAYER_ID, new String[]{LocalSQLDBhelper.KEY_LAYER_USEMODE}, new String[]{String.valueOf(modeCursor.getLong(2) * LocalSQLDBhelper.LAYER_MODE_STORE)}); // Add the "Stored" mode to the current mode.
+					if(modeCursor.getLong(2) % LocalSQLDBhelper.LAYER_MODE_STORE != 0) // Don't add the stored mode more than once.
+						mService.getSQLhelper().updateData(LocalSQLDBhelper.TABLE_LAYER, modeCursor.getLong(0), LocalSQLDBhelper.KEY_LAYER_ID, new String[]{LocalSQLDBhelper.KEY_LAYER_USEMODE}, new String[]{String.valueOf(modeCursor.getLong(2) * LocalSQLDBhelper.LAYER_MODE_STORE)}); // Add the "Stored" mode to the current mode.
 					mService.updateLayoutOnState();
 					mService.showToast(R.string.layerviewer_uploadtoast_writesuccess);
 				} else {Log.e(TAG, "No such layer.");}

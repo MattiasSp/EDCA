@@ -69,7 +69,7 @@ public class GetMap extends AsyncTask<ServerConnection, Void, GetMap> {
 	/** The error tag for this ASyncTask. */
 	public static final String TAG = "GetMap";
 	/** Constant defining the wait time before the GetMap request times out. */
-	private static final int TIME_OUT = 25;
+	private static final int TIME_OUT = 30;
 	
 	/** Constant identifying that the GetMap request failed. */
 	public static final int RESULT_FAILURE = 0;
