@@ -26,7 +26,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import se.lu.nateko.edca.BackboneSvc;
 import se.lu.nateko.edca.R;
-import se.lu.nateko.edca.ServerEditor;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -71,14 +70,14 @@ import android.util.Log;
  * UI thread.																*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.46, 2013-08-01												*
+ * @version 0.47, 2013-08-05												*
  * 																			*
  ****************************************************************************/
 public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabilities> {
 	/** The error tag for this ASyncTask. */
 	public static final String TAG = "GetCapabilities";
 	/** Constant defining the wait time before the GetCapabilities request times out. */
-	private static final int TIME_OUT = 30;
+	private static final int TIME_OUT = 60;
 	/** The server http address and request. */
 	private URI mServerURI;
 	/** The ServerConnection that the request is being made to. */
@@ -116,9 +115,7 @@ public class GetCapabilities extends AsyncTask<ServerConnection, Void, GetCapabi
 		mServerConnection = srvs[0]; // Stores the ServerConnection info.
 		
 		/* Try to form an URI from the supplied ServerConnection info. */
-		String uriString = (mServerConnection.getMode() == ServerEditor.SIMPLE_ADDRESS_MODE ?
-				mServerConnection.getSimpleAddress()
-				: "http://" + srvs[0].toString())
+		String uriString = mServerConnection.getAddress()
 					+ "/wms?service=wms&version=1.1.0&request=GetCapabilities";
 		try {
 			mServerURI = new URI(uriString);

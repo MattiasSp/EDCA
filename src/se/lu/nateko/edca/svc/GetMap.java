@@ -13,7 +13,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import se.lu.nateko.edca.BackboneSvc;
-import se.lu.nateko.edca.ServerEditor;
 import se.lu.nateko.edca.Utilities;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -62,7 +61,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
  * image back to the UI thread.												*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.44, 2013-08-01												*
+ * @version 0.45, 2013-08-05												*
  * 																			*
  ****************************************************************************/
 public class GetMap extends AsyncTask<ServerConnection, Void, GetMap> {
@@ -185,9 +184,7 @@ public class GetMap extends AsyncTask<ServerConnection, Void, GetMap> {
 		 * layers set to display in the local SQLite database. */
 		String uriString = "";
 		try {
-			uriString = (mServerConnection.getMode() == ServerEditor.SIMPLE_ADDRESS_MODE ?
-				mServerConnection.getSimpleAddress()
-				: "http://" + mServerConnection.toString())
+			uriString = mServerConnection.getAddress()
 					+ "/wms?service=wms&version=1.1.0&request=GetMap&layers=" 
 					+ layers
 					+ "&bbox=" + Utilities.latLngBoundsToString(mBounds)

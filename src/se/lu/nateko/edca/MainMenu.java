@@ -56,7 +56,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
  * handles the main menu and makes some initialization calls.				*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.53, 2013-08-01												*
+ * @version 0.54, 2013-08-05												*
  * 																			*
  ****************************************************************************/
 public class MainMenu extends Activity {
@@ -103,18 +103,7 @@ public class MainMenu extends Activity {
 					Log.i(TAG, "Google Play services made available by the user.");
 					break;
 				default: // The Google Play Services are still not available, but the check will be performed again after this in onResume().
-					Log.i(TAG, "Google Play services were not made available by the user.");
-					AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-					alertDialog.setMessage(getString(R.string.app_gplaysvc_required));
-					
-					/* Add a button to the dialog and set its text and button listener. */
-					alertDialog.setButton(getString(R.string.service_alert_buttontext_ok), new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							exit();
-							dialog.dismiss();
-						}
-					});		
-					alertDialog.show(); // Display the dialog to the user.
+					Log.w(TAG, "Google Play services were not made available by the user.");
 					break;
 			}
 		}
@@ -236,8 +225,14 @@ public class MainMenu extends Activity {
         else { // Google Play services were not available for some reason:
             /* Get the error dialog from Google Play services. */
             Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(resultCode, this, GOOGLE_PLAY_SERVICES_REQUEST);
-            if (errorDialog != null) // If Google Play services could provide an error dialog:
+            if (errorDialog != null) {// If Google Play services could provide an error dialog:
+            	errorDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {					
+					public void onCancel(DialogInterface dialog) {
+						kick(); // Kick the user out of the app since it will not work.
+					}
+				});
             	errorDialog.show();
+            }
             else {
             	AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 				alertDialog.setMessage(getString(R.string.app_gplaysvc_notavailable));
@@ -252,6 +247,26 @@ public class MainMenu extends Activity {
 				alertDialog.show(); // Display the dialog to the user.
             }
         }
+	}
+	
+	/**
+	 * Displays a dialog to the user which informs that Google Play
+	 * Services are required. Upon clicking ok, the user is kicked
+	 * out of the app.
+	 */
+	private void kick() {
+		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+		alertDialog.setMessage(getString(R.string.app_gplaysvc_required));
+		alertDialog.setCancelable(false); // Don't let them get away. 
+		
+		/* Add a button to the dialog and set its text and button listener. */
+		alertDialog.setButton(getString(R.string.service_alert_buttontext_ok), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				exit();
+				dialog.dismiss();
+			}
+		});		
+		alertDialog.show(); // Display the dialog to the user.
 	}
 	
 	/**

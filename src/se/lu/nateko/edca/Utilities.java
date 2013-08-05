@@ -80,7 +80,7 @@ public abstract class Utilities {
 	public static final String URL_PREFIX = "http://,https://";
 	
 	/**
-	 * Method for checking if a given String contains a Double.
+	 * Method for checking if a given String contains an Integer.
 	 * @param input String to be examined.
 	 * @return Integer: "1" if input contains an integer, else: "0". The second int in the array is the integer found in the input, if applicable.
 	 */

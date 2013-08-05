@@ -65,7 +65,7 @@ import android.widget.ToggleButton;
  * connections. Can also activate the currently displayed connection.		*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.67, 2013-08-03												*
+ * @version 0.68, 2013-08-05												*
  * 																			*
  ****************************************************************************/
 public class ServerEditor extends Activity {
@@ -98,10 +98,6 @@ public class ServerEditor extends Activity {
     private Long mRowId;
     /** Flag showing whether or not to use simple address mode, only requiring a single combined address. 0 means exploded address mode, 1 means simple mode. */
     private int mAddressMode;
-    /** Constant identifying the simple address mode, where the entire server address is entered as a single input String. */
-    public static final int SIMPLE_ADDRESS_MODE = 1;
-    /** Constant identifying the exploded address mode, where the server address has to be entered as separate parts. */
-    public static final int EXPLODED_ADDRESS_MODE = 0;
     /** String array holding previous input to be rewritten into the EditText boxes. */
     private String[] mTempText;
 
@@ -117,13 +113,13 @@ public class ServerEditor extends Activity {
         	if(instanceState == null) { // Use defaults.
         		mRowId = (long) -1;
         		mEditsEnabled = true;
-        		mAddressMode = SIMPLE_ADDRESS_MODE;
+        		mAddressMode = ServerConnection.SIMPLE_ADDRESS_MODE;
         	}
         }
         if(instanceState != null) { // Get state from Bundle.
         	mRowId = instanceState.getLong(BackboneSvc.PACKAGE_NAME + ".id", (long) -1);
         	mEditsEnabled = instanceState.getBoolean(BackboneSvc.PACKAGE_NAME + ".editsenabled", true);
-        	mAddressMode = instanceState.getInt(BackboneSvc.PACKAGE_NAME + ".addressmode", SIMPLE_ADDRESS_MODE);
+        	mAddressMode = instanceState.getInt(BackboneSvc.PACKAGE_NAME + ".addressmode", ServerConnection.SIMPLE_ADDRESS_MODE);
         	mTempText = instanceState.getStringArray(BackboneSvc.PACKAGE_NAME + ".text");
         }
         Log.v(TAG, "mRowId: " + String.valueOf(getRowId()) + ", mEditsEnabled: " + String.valueOf(mEditsEnabled)+ ", mAddressMode: " + String.valueOf(mAddressMode));        
@@ -215,13 +211,13 @@ public class ServerEditor extends Activity {
     }
 
     /**
-     * Listener method which is called when the Simple Address Mode
+     * Listener method which is called when the Address Mode
      * CheckBox is clicked. Hides the non-required fields and shows
      * the ones required for the selected mode.
      * @param view The View object that was clicked.
      */
-    public void onClickSimpleAddress(View view) {
-    	mAddressMode = (mAddressMode == SIMPLE_ADDRESS_MODE) ? EXPLODED_ADDRESS_MODE : SIMPLE_ADDRESS_MODE;
+    public void onClickIPAddressMode(View view) {
+    	mAddressMode = (mAddressMode == ServerConnection.SIMPLE_ADDRESS_MODE) ? ServerConnection.IP_ADDRESS_MODE : ServerConnection.SIMPLE_ADDRESS_MODE;
     	setAddressMode(mAddressMode);
     }
     
@@ -382,26 +378,22 @@ public class ServerEditor extends Activity {
 	 * @param mode Pass 1 to show the simple address mode or 0 to show the exploded address mode.
 	 */
 	private void setAddressMode(int mode) {
-		((CheckBox) findViewById(R.id.srvedit_checkbox_mode)).setChecked((mode == SIMPLE_ADDRESS_MODE));
-		if((mode == SIMPLE_ADDRESS_MODE)) {
+		((CheckBox) findViewById(R.id.srvedit_checkbox_mode)).setChecked((mode == ServerConnection.IP_ADDRESS_MODE));
+		if((mode == ServerConnection.SIMPLE_ADDRESS_MODE)) {
 			((TableRow) findViewById(R.id.srvedit_tablerow_simple_head)).setVisibility(View.VISIBLE);
 			((TableRow) findViewById(R.id.srvedit_tablerow_simple_edittext)).setVisibility(View.VISIBLE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_head)).setVisibility(View.GONE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_edittext)).setVisibility(View.GONE);
+			((TextView) findViewById(R.id.srvedit_textview_ip)).setVisibility(View.GONE);
+			((EditText) findViewById(R.id.srvedit_edittext_ip)).setVisibility(View.GONE);
 			((TableRow) findViewById(R.id.srvedit_tablerow_path_head)).setVisibility(View.GONE);
 			((TableRow) findViewById(R.id.srvedit_tablerow_path_edittext)).setVisibility(View.GONE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_head)).setVisibility(View.GONE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_edittext)).setVisibility(View.GONE);
 		}
 		else {
 			((TableRow) findViewById(R.id.srvedit_tablerow_simple_head)).setVisibility(View.GONE);
 			((TableRow) findViewById(R.id.srvedit_tablerow_simple_edittext)).setVisibility(View.GONE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_head)).setVisibility(View.VISIBLE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_ipport_edittext)).setVisibility(View.VISIBLE);
+			((TextView) findViewById(R.id.srvedit_textview_ip)).setVisibility(View.VISIBLE);
+			((EditText) findViewById(R.id.srvedit_edittext_ip)).setVisibility(View.VISIBLE);
 			((TableRow) findViewById(R.id.srvedit_tablerow_path_head)).setVisibility(View.VISIBLE);
 			((TableRow) findViewById(R.id.srvedit_tablerow_path_edittext)).setVisibility(View.VISIBLE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_head)).setVisibility(View.VISIBLE);
-			((TableRow) findViewById(R.id.srvedit_tablerow_workspace_edittext)).setVisibility(View.VISIBLE);
 		}
 	}
     
@@ -456,13 +448,13 @@ public class ServerEditor extends Activity {
     	 * a number corresponding to the field that is incorrect, or 0 if they are
     	 * all correctly input.
     	 */
-    	int switcher = 	(text[1].contentEquals("")) ?																1
-    			: (mAddressMode == SIMPLE_ADDRESS_MODE && !Utilities.isValidAddress(text[2])) ?						2
-    				: (mAddressMode == EXPLODED_ADDRESS_MODE && !Utilities.isIP(text[3])) ?							3
-    					: (mAddressMode == EXPLODED_ADDRESS_MODE && Utilities.isInteger(text[4])[0] == 0) ?			4
-    						: (mAddressMode == EXPLODED_ADDRESS_MODE && !Utilities.isValidPath(text[5])) ?			5
-    							: (mAddressMode == EXPLODED_ADDRESS_MODE && !Utilities.isValidWorkspace(text[6])) ?	6
-    								:																				0;
+    	int switcher = 	(text[1].contentEquals("")) ?																											1
+    			: (mAddressMode == ServerConnection.SIMPLE_ADDRESS_MODE && !Utilities.isValidAddress(text[2])) ?												2
+    				: (mAddressMode == ServerConnection.IP_ADDRESS_MODE && !Utilities.isIP(text[3])) ?															3
+    					: (!(mAddressMode == ServerConnection.SIMPLE_ADDRESS_MODE && text[4].equalsIgnoreCase("")) && Utilities.isInteger(text[4])[0] == 0) ?	4
+    						: (mAddressMode == ServerConnection.IP_ADDRESS_MODE && !Utilities.isValidPath(text[5])) ?											5
+    							: (!Utilities.isValidWorkspace(text[6])) ?																						6
+    								:																															0;
     	
     	/* If a field was filled incorrectly, display a warning and let the user return. */
     	if(switcher != 0) {

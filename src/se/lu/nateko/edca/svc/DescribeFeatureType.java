@@ -25,7 +25,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import se.lu.nateko.edca.BackboneSvc;
-import se.lu.nateko.edca.ServerEditor;
 import se.lu.nateko.edca.Utilities;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -69,7 +68,7 @@ import android.util.Log;
  * in the local SQLite database.											*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.28, 2013-08-01												*
+ * @version 0.30, 2013-08-05												*
  * 																			*
  ****************************************************************************/
 public class DescribeFeatureType extends AsyncTask<ServerConnection, Void, DescribeFeatureType> {
@@ -77,7 +76,7 @@ public class DescribeFeatureType extends AsyncTask<ServerConnection, Void, Descr
 	public static final String TAG = "DescribeFeatureType";
 	
 	/** Constant defining the wait time before the DescribeFeatureType request times out. */
-	public static final int TIME_OUT = 20;
+	public static final int TIME_OUT = 30;
 	
 	/** A reference to the application's background Service, received in the constructor. */
 	private BackboneSvc mService;
@@ -118,9 +117,7 @@ public class DescribeFeatureType extends AsyncTask<ServerConnection, Void, Descr
 		/* Try to form an URI from the supplied ServerConnection info. */
 		if(srvs[0] == null) // Cannot connect unless there is an active connection.
 			return this;
-		String uriString = (srvs[0].getMode() == ServerEditor.SIMPLE_ADDRESS_MODE ?
-				srvs[0].getSimpleAddress()
-				: "http://" + srvs[0].toString())
+		String uriString = srvs[0].getAddress()
 					+ "/wfs?service=wfs&version=1.1.0&request=DescribeFeatureType&typeName="+mLayerName;
 		try {
 			mServerURI = new URI(uriString);

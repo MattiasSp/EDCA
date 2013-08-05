@@ -36,7 +36,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import se.lu.nateko.edca.BackboneSvc;
 import se.lu.nateko.edca.LayerViewer;
 import se.lu.nateko.edca.R;
-import se.lu.nateko.edca.ServerEditor;
 import se.lu.nateko.edca.Utilities;
 import se.lu.nateko.edca.svc.GeographyLayer.LayerField;
 import android.app.AlertDialog;
@@ -99,14 +98,14 @@ import com.vividsolutions.jts.io.WKTReader;
  * handles uploading of a layer's data to its corresponding server layer.	*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.55, 2013-08-03												*
+ * @version 0.57, 2013-08-05												*
  * 																			*
  ****************************************************************************/
 public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 	/** The error tag for this ASyncTask. */
 	public static final String TAG = "GeoHelper";
 	/** Constant defining the wait time (seconds) before an upload operation times out. */
-	private static final int TIME_OUT = 30;
+	private static final int TIME_OUT = 60;
 	
 	/** The mode to run, being either of "read", "write" or "overwrite". */
 	private int mRwMode = 0;
@@ -468,10 +467,8 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 		/* Try to form an URI from the supplied ServerConnection info. */
 		if(mService.getActiveServer() == null) // Cannot connect unless there is an active connection.
 			return false;
-		String uriString = (mService.getActiveServer().getMode() == ServerEditor.SIMPLE_ADDRESS_MODE ?
-				mService.getActiveServer().getSimpleAddress()
-				: "http://" + mService.getActiveServer().toString())
-					+ "/wfs";
+		String uriString = mService.getActiveServer().getAddress() + "/wfs";
+		Log.i(TAG, uriString);
 		
 		/* Post all geometry from the active layer to that layer on the geospatial server. */
 		HttpResponse response;
@@ -797,7 +794,8 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 				" xmlns:gml=\"http://www.opengis.net/gml\"" +
 				" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
 				" xsi:schemaLocation=\"" +
-				"http://" + mService.getActiveServer().toString() + "/DescribeFeatureType?typename=" + mGeoLayer.getName() +
+				mService.getActiveServer().getAddress() +
+				"/DescribeFeatureType?typename=" + mGeoLayer.getName() +
 				" http://www.opengis.net/wfs\">";
 		
 		request = request + formInsertElements();
@@ -1025,6 +1023,9 @@ public class GeoHelper extends AsyncTask<GeographyLayer, Void, GeoHelper> {
 			switch(mElementType) {
 				case ELEMENT_MAPPING_EXCEPTION: {
 					throw new SAXException("ServiceException: " + new String(Utilities.copyOfRange_char(ch, start, length)));
+				}
+				case ELEMENT_MAPPING_EXCEPTION_B: {
+					throw new SAXException("Exception: " + new String(Utilities.copyOfRange_char(ch, start, length)));
 				}
 				case ELEMENT_MAPPING_MESSAGE: {
 					if(mFailed)

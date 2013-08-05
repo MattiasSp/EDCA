@@ -68,7 +68,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * most of the other application-wide information.							*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.94, 2013-08-01												*
+ * @version 0.95, 2013-08-05												*
  * 																			*
  ****************************************************************************/
 public class BackboneSvc extends Service {
@@ -196,7 +196,7 @@ public class BackboneSvc extends Service {
 	public void setActiveServer(ServerConnection srv) {
 //		Log.d(TAG, "setActiveServer(ServerConnection) called.");
 		try {
-			Log.i(TAG, "New active server '" + srv.getName() + "': " + ((srv.getMode() == 0) ? srv.toString() : srv.getSimpleAddress()));
+			Log.i(TAG, "New active server '" + srv.getAddress());
 			mActiveServer = srv;
 		} catch (NullPointerException e) {
 			Log.w(TAG, e.toString());
@@ -342,7 +342,7 @@ public class BackboneSvc extends Service {
 	 * @param reportFailure True to show a dialog alerting the user of a failed connection attempt.
 	 */
 	public void clearConnection(boolean reportFailure) {
-		Log.d(TAG, "reportFailedConnection(reportFailure=" + String.valueOf(reportFailure) + ") called.");
+		Log.d(TAG, "clearConnection(reportFailure=" + String.valueOf(reportFailure) + ") called.");
 		/* Clear the active server since it cannot be contacted and notify the user. */
 		setActiveServer(null);
 		setConnectState(BackboneSvc.DISCONNECTED, 0);		

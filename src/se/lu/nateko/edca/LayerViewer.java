@@ -68,7 +68,7 @@ import android.widget.TextView;
  * data for and which ones to store locally.								*
  * 																			*
  * @author Mattias Spångmyr													*
- * @version 0.58, 2013-08-01												*
+ * @version 0.59, 2013-08-04												*
  * 																			*
  ****************************************************************************/
 public class LayerViewer extends ListActivity {
@@ -377,15 +377,17 @@ public class LayerViewer extends ListActivity {
 	 */
     public void populateLayerList() {
     	Log.d(TAG, "populateLayerList() called.");
-    	Cursor layerList = mService.getSQLhelper().fetchData(LocalSQLDBhelper.TABLE_LAYER, new String[] { LocalSQLDBhelper.KEY_LAYER_ID, LocalSQLDBhelper.KEY_LAYER_NAME }, LocalSQLDBhelper.ALL_RECORDS, null, true); // Get all of the Layers from the local SQLite database and create the item list.
-        startManagingCursor(layerList);
+    	if(mService.getActiveServer() != null) { // Don't add layers if there is no server to read them from.
+    		Cursor layerList = mService.getSQLhelper().fetchData(LocalSQLDBhelper.TABLE_LAYER, new String[] { LocalSQLDBhelper.KEY_LAYER_ID, LocalSQLDBhelper.KEY_LAYER_NAME }, LocalSQLDBhelper.ALL_RECORDS, null, true); // Get all of the Layers from the local SQLite database and create the item list.
+    		startManagingCursor(layerList);
 
-        String[] from = new String[] { LocalSQLDBhelper.KEY_LAYER_NAME };
-        int[] to = new int[] { R.id.layerviewer_layerlist_rowText };
+    		String[] from = new String[] { LocalSQLDBhelper.KEY_LAYER_NAME };
+    		int[] to = new int[] { R.id.layerviewer_layerlist_rowText };
         
-        /* Now set an array adapter and set it to display using our row. */
-        SimpleCursorAdapter layers = new SimpleCursorAdapter(this, R.layout.layer_listrow, layerList, from, to);
-        setListAdapter(layers);
+    		/* Now set an array adapter and set it to display using our row. */
+    		SimpleCursorAdapter layers = new SimpleCursorAdapter(this, R.layout.layer_listrow, layerList, from, to);
+    		setListAdapter(layers);
+    	}
     }
     
     /**
@@ -452,7 +454,7 @@ public class LayerViewer extends ListActivity {
 	 * @param uploading Pass true to set the text to "Uploading..."
 	 */
 	public void setLayout_UploadButton(boolean enable, boolean uploading) {
-		Log.d(TAG, "setLayout_EnableUploadButton(" + String.valueOf(enable) + ") called.");
+		Log.d(TAG, "setLayout_UploadButton(enable:" + String.valueOf(enable) + ", uploading: " + String.valueOf(uploading) + ") called.");
 		Button upload = (Button) findViewById(R.id.layerviewer_button_upload);
 		upload.setEnabled(enable);
 		if(!uploading)

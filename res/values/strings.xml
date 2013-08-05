@@ -37,7 +37,7 @@
     <string name="app_name">Emergency Data Collector for Android&#8482;</string>
     <string name="app_name_short">EDCA</string>
     <string name="app_author">Mattias Spångmyr</string>
-    <string name="app_versiondate">2013–08–03</string>
+    <string name="app_versiondate">2013–08–05</string>
     <string name="app_contact">edca.contact@gmail.com</string>
     <string name="app_empty">&#8211;</string>
     <string name="app_webconnection">Indicates if the application is accessing or processing web content.</string>
@@ -57,7 +57,7 @@
     <string name="about_content_head_date">"Last updated: "</string>
     <string name="about_content_head_author">Author: </string>
     <string name="about_content_head_contact">"Contact: "</string>
-    <string name="about_content_license">Emergency Data Collector for Android&#8482; (EDCA)\n&#9426; 2013 Mattias Spångmyr\n\nEDCA is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nEDCA is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/">GNU General Public License</a> for more details.\n\nThe source code for this software can be accessed at <a href="github.com/mattiassp/edca">EDCA\'s GitHub</a> page.\n\nEDCA also utilizes the JTS Topology Suite, Version 1.8, by Vivid Solutions Inc. It is released under the <a href="http://www.gnu.org/copyleft/lesser.html">GNU Lesser General Public License</a> and its source can be accessed at the <a href="http://www.vividsolutions.com/jts">JTS Topology Suite website</a>.\n\nAndroid&#8482; is a trademark of Google Inc. The Android source is released under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a> and can be accessed at <a href="http://source.android.com/">source.android.com</a>.</string>
+    <string name="about_content_license">Emergency Data Collector for Android&#8482; (EDCA)\n&#9426; 2013 Mattias Spångmyr\n\nEDCA is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nEDCA is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/licenses/">GNU General Public License</a> for more details.\n\nThe source code for this software can be accessed at <a href="http://github.com/mattiassp/edca">EDCA\'s GitHub</a> page.\n\nEDCA also utilizes the JTS Topology Suite, Version 1.8, by Vivid Solutions Inc. It is released under the <a href="http://www.gnu.org/copyleft/lesser.html">GNU Lesser General Public License</a> and its source can be accessed at the <a href="http://www.vividsolutions.com/jts">JTS Topology Suite website</a>.\n\nAndroid&#8482; is a trademark of Google Inc. The Android source is released under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a> and can be accessed at <a href="http://source.android.com/">source.android.com</a>.</string>
     <string name="about_content_head_gplaysvc">"Google Play Services license: "</string>
     <string name="about_content_value_gplaysvc">(click to read)</string>
     <string name="about_content_gplaysvc_none">Google Play services is not installed on this device.</string>
@@ -71,9 +71,9 @@
     <string name="srvstart_contextmenu_delete">Delete</string>
     <string name="srvedit_title_create">Create New Connection</string>
     <string name="srvedit_title_edit">Edit Connection</string>
-    <string name="srvedit_content_head_mode">Simple Address Mode</string>
+    <string name="srvedit_content_head_mode">IP Address Mode</string>
     <string name="srvedit_content_head_name">Name:</string>
-    <string name="srvedit_content_head_simple">Full server address:</string>
+    <string name="srvedit_content_head_simple">Full Server Address:</string>
     <string name="srvedit_content_head_ip">IP Address:</string>
     <string name="srvedit_content_head_port">Port:</string>
     <string name="srvedit_content_head_path">Geospatial server path:</string>
@@ -108,9 +108,9 @@
     <string name="layerviewer_content_nolayers">No remote layers available.</string>
     <string name="layerviewer_button_upload">Upload/Store Data</string>
     <string name="layerviewer_button_uploading">Uploading&#8230;</string>
-    <string name="layerviewer_contextmenu_display">Toggle Display</string>
-    <string name="layerviewer_contextmenu_store">Toggle Store on Device</string>
-    <string name="layerviewer_contextmenu_activate">Toggle Target for Data Collection</string>
+    <string name="layerviewer_contextmenu_display">Display</string>
+    <string name="layerviewer_contextmenu_store">Store on Device</string>
+    <string name="layerviewer_contextmenu_activate">Collect Data</string>
     <string name="layerviewer_contextstore_notactive">Can only store the currently active layer.</string>
     <string name="layerviewer_uploaddialog_confirm">Yes</string>
     <string name="layerviewer_uploaddialog_decline">No</string>

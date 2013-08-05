@@ -148,7 +148,7 @@ public class ServerViewer extends ListActivity {
 	public void setLayout_ActiveServer(ServerConnection srv) {
 		TextView activesrv = (TextView) findViewById(R.id.srvstart_content_activesrv);
 		if(srv != null) {
-			Log.i(TAG, "Show: '" + srv.getName() + "' " + srv.toString());			
+			Log.i(TAG, "Show: '" + srv.getName() + "' " + ((srv.getMode() == ServerConnection.SIMPLE_ADDRESS_MODE) ? srv.getSimpleAddress() : srv.toString()));			
 			activesrv.setText(srv.getName());
 			activesrv.setTextColor(Color.GREEN);
 		} else {

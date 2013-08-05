@@ -62,8 +62,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/srvedit_textview_title"
             android:text="@string/srvedit_content_head_mode"
-            android:checked="true"
-            android:onClick="onClickSimpleAddress"
+            android:checked="false"
+            android:onClick="onClickIPAddressMode"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         
         	<TableLayout
@@ -79,7 +79,7 @@
                 	android:layout_height="wrap_content" >
 
                 	<TextView
-                    	android:id="@+id/textView2"
+                    	android:id="@+id/srvedit_textview_name"
                     	android:layout_width="wrap_content"
                     	android:layout_height="wrap_content"
                     	android:layout_span="2"
@@ -135,13 +135,13 @@
                 	android:layout_height="wrap_content">
 
 					<TextView
-                    	android:id="@+id/textView3"
+                    	android:id="@+id/srvedit_textview_ip"
                     	android:layout_width="wrap_content"
                     	android:layout_height="wrap_content"
                     	android:text="@string/srvedit_content_head_ip"
                     	android:textAppearance="?android:attr/textAppearanceMedium" />
 					<TextView
-                    	android:id="@+id/textView4"
+                    	android:id="@+id/srvedit_textview_port"
                     	android:layout_width="wrap_content"
                     	android:layout_height="wrap_content"
                     	android:text="@string/srvedit_content_head_port"
@@ -174,7 +174,7 @@
                 	android:layout_height="wrap_content" >
 				
 					<TextView
-                    	android:id="@+id/textView6"
+                    	android:id="@+id/srvedit_textview_path"
                     	android:layout_width="wrap_content"
                     	android:layout_height="wrap_content"
                     	android:layout_span="2"
@@ -203,7 +203,7 @@
                 	android:layout_height="wrap_content" >
 				
 					<TextView
-                    	android:id="@+id/TextView01"
+                    	android:id="@+id/srvedit_textview_workspace"
                     	android:layout_width="wrap_content"
                     	android:layout_height="wrap_content"
                     	android:layout_span="2"
